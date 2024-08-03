@@ -1,3 +1,88 @@
+# Import the necessary modules
+import pygame
+import sys
+import random
+
+# Initialize the pygame module
+pygame.init()
+
+# Set up display
+width, height = 800, 800  # Define the width and height of the window
+window = pygame.display.set_mode((width, height))  # Create the window with the specified dimensions
+pygame.display.set_caption("City Grid Simulation")  # Set the title of the window
+
+# Define some colors using RGB values
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GRAY = (200, 200, 200)
+DARK_GRAY = (100, 100, 100)
+GREEN = (0, 255, 0)
+
+# Grid settings
+rows, cols = 100, 100  # Define the number of rows and columns in the grid
+cell_size = width // cols  # Calculate the size of each cell based on the window width and number of columns
+
+# Function to generate a fake city grid
+def generate_city_grid(rows, cols):
+    # 'B' for buildings and 'R' for roads
+    # Create a 2D list (grid) filled with 'B' for buildings, list comprehension will automatically set 'B' for each cell
+    grid = [['B' for _ in range(cols)] for _ in range(rows)]
+
+    # Create horizontal roads
+    # Start from 2 and increment by 10 to leave space for buildings, range up to rows
+    for i in range(2, rows, 10):
+        for j in range(cols):
+            grid[i][j] = 'R'  # Set the cell to 'R' for road
+            grid[i+1][j] = 'R'  # Make the road two tiles wide
+
+    # Create vertical roads
+    for j in range(2, cols, 10):
+        for i in range(rows):
+            grid[i][j] = 'R'  # Set the cell to 'R' for road
+            grid[i][j+1] = 'R'  # Make the road two tiles wide
+    
+    return grid  # Return the generated grid
+
+# Function to draw the grid
+def draw_grid(win, grid):
+    for i in range(rows):
+        for j in range(cols):
+            rect = pygame.Rect(j * cell_size, i * cell_size, cell_size, cell_size)  # Create a rectangle for each cell
+
+            # If cell is a road, draw it in gray
+            if grid[i][j] == 'R':
+                pygame.draw.rect(win, GRAY, rect)
+
+            # If cell is not a road, it is a building; draw it in dark gray
+            else:
+                pygame.draw.rect(win, DARK_GRAY, rect)
+
+            # Draw a white border around each cell
+            pygame.draw.rect(win, WHITE, rect, 1)
+
+
+# Main loop
+grid = generate_city_grid(rows, cols)
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:  # If the user closes the window
+            pygame.quit()
+            sys.exit()
+
+    window.fill(BLACK)  # Fill the window with a black background
+
+    keys = pygame.key.get_pressed()  # Check which keys are pressed
+    if keys[pygame.K_j]:  # If the 'j' key is pressed
+        print("Stopped Manually")  # Print a debug message
+        running = False  # Stop the main loop
+
+    draw_grid(window, grid)  # Draw the grid on the window
+    pygame.display.update()  # Update the display
+
+
+
+
 # Scenario 1: 911 Call for a Broken Leg at a Specific Address
 # Initialize map data 
 # Initialize AI agents (Agent class) for event handling
