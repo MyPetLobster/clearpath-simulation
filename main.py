@@ -1,4 +1,5 @@
 import pygame as pg
+from sim.sim import Game
 
 
 def main():
@@ -13,14 +14,19 @@ def main():
     # implement menu
 
     # implement game
+    game = Game(screen, clock)
 
     while running:
         # start menu goes here
     
         while playing:
             # game loop goes here
+            game.run()
 
 
+
+if __name__ == "__main__":
+    main()
 
 
 
