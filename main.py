@@ -38,6 +38,8 @@ pg.display.set_caption("ClearPath Simulation")
 clock = pg.time.Clock()
 
 
+
+
 class CityGrid:
     def __init__(self, grid_size):
         self.grid_size = grid_size
@@ -81,6 +83,8 @@ class CityGrid:
                 pg.draw.rect(win, color, (j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
 
+
+
 class TrafficLight:
     def __init__(self, x, y, state='RED'):
         self.x = x
@@ -110,8 +114,11 @@ class TrafficLight:
         pg.draw.rect(win, color, (self.y * TILE_SIZE, self.x * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
 
+
+
 class Vehicle:
     ...
+
 
 
 
@@ -125,6 +132,7 @@ class Simulation:
             TrafficLight(10, 9, 'GREEN'), TrafficLight(10, 14, 'GREEN'), TrafficLight(13, 9, 'GREEN'), TrafficLight(13, 14, 'GREEN'),
             TrafficLight(9, 10), TrafficLight(14, 10), TrafficLight(9, 13), TrafficLight(14, 13)
             ]
+        split_tiles = [(10,10), (10,13), (13,10), (13,13)]
 
     def run(self):
         running = True
@@ -149,6 +157,16 @@ class Simulation:
 
         for light in self.traffic_lights:
             light.draw(self.win)
+        
+    def draw_split_tiles(self, x, y, color1, color2):
+        top_left = (x * TILE_SIZE, y * TILE_SIZE)
+        top_right = ((x + 1) * TILE_SIZE, y * TILE_SIZE)
+        bottom_left = (x * TILE_SIZE, (y + 1) * TILE_SIZE)
+        bottom_right = ((x + 1) * TILE_SIZE, (y + 1) * TILE_SIZE)
+
+        # Draw the two triangles
+        pg.draw.polygon(self.win, color1, [top_left, top_right, bottom_right])
+        pg.draw.polygon(self.win, color2, [top_left, bottom_left, bottom_right])
 
 
 
