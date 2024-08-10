@@ -7,6 +7,7 @@ import sys
 # Set up colors
 ROAD_COLOR = (40, 40, 40)
 SIDEWALK_COLOR = (90, 90, 90)
+CROSSWALK_COLOR = (255, 255, 255)
 RED_LIGHT = (255, 0, 0)
 GREEN_LIGHT = (0, 255, 0)
 YELLOW_LIGHT = (255, 255, 0)
@@ -25,12 +26,9 @@ GREEN_LIGHT_DURATION = 10               # seconds
 YELLOW_LIGHT_DURATION = 3               # seconds
 RED_LIGHT_DURATION = 13                 # seconds
 
-
-
-
 # Settings
 TILE_SIZE = 32              # pixels
-WIDTH, HEIGHT = 800, 600    # pixels
+WIDTH, HEIGHT = 768, 768    # pixels
 GRID_SIZE = 24              # tiles
 
 # Initialize pygame
@@ -38,6 +36,7 @@ pg.init()
 WIN = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("ClearPath Simulation")
 clock = pg.time.Clock()
+
 
 class CityGrid:
     def __init__(self, grid_size):
@@ -51,28 +50,36 @@ class CityGrid:
     def set_city_elements(self):
         # Set up roads
         for i in range(self.grid_size):
-            self.grid[11][i] = 1
-            self.grid[i][11] = 1
-            self.grid[12][i] = 1
-            self.grid[i][12] = 1
+            self.grid[11][i] = 'road'
+            self.grid[i][11] = 'road'
+            self.grid[12][i] = 'road'
+            self.grid[i][12] = 'road'
 
         # Set up sidewalks
         for i in range(self.grid_size):
-            self.grid[10][i] = 2
-            self.grid[i][10] = 2
-            self.grid[13][i] = 2
-            self.grid[i][13] = 2
+            self.grid[10][i] = 'sidewalk'
+            self.grid[i][10] = 'sidewalk'
+            self.grid[13][i] = 'sidewalk'
+            self.grid[i][13] = 'sidewalk'
+
+        # Set up crosswalks
+        crosswalks = [(11,10), (12,10), (10,11), (10, 12), (13, 11), (13, 12), (11, 13), (12, 13)]
+        for crosswalk in crosswalks:
+            self.grid[crosswalk[0]][crosswalk[1]] = 'crosswalk'
 
     def draw(self, win):
         for i in range(self.grid_size):
             for j in range(self.grid_size):
-                if self.grid[i][j] == 1:
+                if self.grid[i][j] == 'road':
                     color = ROAD_COLOR
-                elif self.grid[i][j] == 2:
+                elif self.grid[i][j] == 'sidewalk':
                     color = SIDEWALK_COLOR
+                elif self.grid[i][j] == 'crosswalk':
+                    color = CROSSWALK_COLOR
                 else:
                     color = BLOCK_COLOR
                 pg.draw.rect(win, color, (j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE))
+
 
 class TrafficLight:
     def __init__(self, x, y, state='RED'):
@@ -102,25 +109,10 @@ class TrafficLight:
             color = GREEN_LIGHT
         pg.draw.rect(win, color, (self.y * TILE_SIZE, self.x * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
-# class Vehicle:
-#     def __init__(self, x, y, speed):
-#         self.x = x
-#         self.y = y
-#         self.speed = speed
-#         self.direction = 'EAST'
 
-#     def move(self):
-#         if self.direction == 'EAST':
-#             self.x += self.speed
-#         elif self.direction == 'WEST':
-#             self.x -= self.speed
-#         elif self.direction == 'NORTH':
-#             self.y -= self.speed
-#         elif self.direction == 'SOUTH':
-#             self.y += self.speed
+class Vehicle:
+    ...
 
-#     def draw(self, win):
-#         pg.draw.rect(win, (255, 255, 255), (self.x * TILE_SIZE, self.y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
 
 class Simulation:
@@ -151,8 +143,6 @@ class Simulation:
     def update(self):
         for light in self.traffic_lights:
             light.update()
-
-
 
     def draw(self):
         self.city.draw(self.win)
