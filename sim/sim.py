@@ -1,5 +1,7 @@
 import pygame as pg
 import sys
+from .city import City
+from .settings import TILE_SIZE
 
 
 class Game: 
@@ -8,6 +10,10 @@ class Game:
         self.screen = screen
         self.clock = clock
         self.width, self.height = self.screen.get_size()
+
+        grid_len_x = self.width // TILE_SIZE
+        grid_len_y = self.height // TILE_SIZE
+        self.city = City(grid_len_x, grid_len_y, self.width, self.height)
 
     # Main Loop
     def run(self):
@@ -32,4 +38,16 @@ class Game:
 
     def draw(self):
         self.screen.fill((0, 0, 0))    # Fill the screen with black
+
+        for x in range(self.city.grid_len_x):
+            for y in range(self.city.grid_len_y):
+                square = self.city.create_city()[x][y]["cartesian_rect"]
+                rect = pg.Rect(square[0][0], square[0][1], TILE_SIZE, TILE_SIZE)
+                pg.draw.rect(self.screen, (255, 0, 255), rect, 1)
+
         pg.display.flip()              # Update the display
+
+
+
+
+# https://www.youtube.com/watch?v=wI_pvfwcPgQ
