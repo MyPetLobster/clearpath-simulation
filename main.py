@@ -1,34 +1,110 @@
 import pygame as pg
-from sim.sim import Game
-
-
-def main():
-
-    running = True
-    playing = True
-
-    pg.init()
-    screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
-    clock = pg.time.Clock()
-
-    # implement menu
-
-    # implement game
-    game = Game(screen, clock)
-
-    while running:
-        # start menu goes here
-    
-        while playing:
-            # game loop goes here
-            game.run()
+import sys
 
 
 
-if __name__ == "__main__":
-    main()
+# Initialize pygame
+pg.init()
+
+# Set up display
+WIDTH, HEIGHT = 800, 600
+WIN = pg.display.set_mode((WIDTH, HEIGHT))
+pg.display.set_caption("ClearPath Simulation")
+
+# Set up colors
+ROAD_COLOR = (40, 40, 40)
+SIDEWALK_COLOR = (90, 90, 90)
+RED_LIGHT = (255, 0, 0)
+GREEN_LIGHT = (0, 255, 0)
+YELLOW_LIGHT = (255, 255, 0)
+YELLOW_STRIPE = (225, 225, 15)
+BLOCK_COLOR = (0, 0, 0)
 
 
+
+
+# Function to generate city grid
+def create_grid():
+    grid = []
+    for i in range(24):
+        grid.append([])
+        for j in range(24):
+            grid[i].append(0)
+    return grid
+
+
+def set_city_elements(grid):
+    # Set up roads
+    for i in range(24):
+        grid[11][i] = 1
+        grid[i][11] = 1
+        grid[12][i] = 1
+        grid[i][12] = 1
+
+    # Set up sidewalks
+    for i in range(24):
+        grid[10][i] = 2
+        grid[i][10] = 2
+        grid[13][i] = 2
+        grid[i][13] = 2
+
+def set_traffic_lights(grid):
+    # Set up traffic lights
+    east_west_lights = [[10][9], [10][14], [13][9], [13][14]]
+    north_south_lights = [[9][10], [14][10], [9][13], [14][13]]
+    cells_to_split = [[10][10], [10][13], [13][10], [13][13]]
+
+    for cell in east_west_lights:
+        grid[cell[0]][cell[1]] = 3
+    for cell in north_south_lights:
+        grid[cell[0]][cell[1]] = 4
+    for cell in cells_to_split:
+        grid[cell[0]][cell[1]] = 5
+
+
+
+
+
+
+
+def draw_split_cell(cell):
+    # Split cell into two triangles
+    pass
+
+
+
+# function to paint grid as road with intersection, and sidewalks and lights
+
+
+
+
+# Class for traffic light objects (include cell location, color, and state)
+# TODO: How to split one cell into triangle for cell where two traffic lights meet?
+# Traffic light needs timer and rules
+
+
+# Class for pedestrians (include cell location, speed, direction, and state)
+
+
+# Class for vehicles
+
+
+# Class for emergency vehicles
+
+
+# Class for events (911 call, pursuit, etc.)
+
+
+# Rules for intersection, include what cells cars should stop at, what cells pedestrians should stop at, etc.
+## If traffic light turns yellow, cars should stop at intersection unless < 2 seconds of yellow have passed and 
+## they are in the nearest cell to the intersection
+## If traffic light turns red, cars should stop at intersection or behind the stopped car in front of them
+
+# If 4-way stop is in effect, cars should stop and 'check' if other cars are stopped before proceeding
+# TODO: write 4-way stop algorithm
+
+
+# 
 
 
 
