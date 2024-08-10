@@ -1,9 +1,6 @@
 import pygame as pg
 import sys
 
-
-
-
 # Set up colors
 ROAD_COLOR = (40, 40, 40)
 SIDEWALK_COLOR = (90, 90, 90)
@@ -36,9 +33,6 @@ pg.init()
 WIN = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("ClearPath Simulation")
 clock = pg.time.Clock()
-
-
-
 
 class CityGrid:
     def __init__(self, grid_size):
@@ -82,9 +76,6 @@ class CityGrid:
                     color = BLOCK_COLOR
                 pg.draw.rect(win, color, (j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
-
-
-
 class TrafficLight:
     def __init__(self, x, y, state='RED'):
         self.x = x
@@ -113,15 +104,6 @@ class TrafficLight:
             color = GREEN_LIGHT
         pg.draw.rect(win, color, (self.y * TILE_SIZE, self.x * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
-
-
-
-class Vehicle:
-    ...
-
-
-
-
 class Simulation:
     def __init__(self, win, clock):
         self.win = win
@@ -132,7 +114,7 @@ class Simulation:
             TrafficLight(10, 9, 'GREEN'), TrafficLight(10, 14, 'GREEN'), TrafficLight(13, 9, 'GREEN'), TrafficLight(13, 14, 'GREEN'),
             TrafficLight(9, 10), TrafficLight(14, 10), TrafficLight(9, 13), TrafficLight(14, 13)
             ]
-        split_tiles = [(10,10), (10,13), (13,10), (13,13)]
+        self.split_tiles = [(10,10), (10,13), (13,10), (13,13)]
 
     def run(self):
         running = True
@@ -157,19 +139,48 @@ class Simulation:
 
         for light in self.traffic_lights:
             light.draw(self.win)
-        
-    def draw_split_tiles(self, x, y, color1, color2):
+
+        # Draw the split tiles
+        for (x, y) in self.split_tiles:
+            self.draw_split_tile(x, y)
+
+    def draw_split_tile(self, x, y):
+        # Find the adjacent lights and match their colors
+
+        north_south_color = self.get_light_color(9, 10) 
+        east_west_color = self.get_light_color(10,9)
+
         top_left = (x * TILE_SIZE, y * TILE_SIZE)
         top_right = ((x + 1) * TILE_SIZE, y * TILE_SIZE)
         bottom_left = (x * TILE_SIZE, (y + 1) * TILE_SIZE)
         bottom_right = ((x + 1) * TILE_SIZE, (y + 1) * TILE_SIZE)
 
-        # Draw the two triangles
-        pg.draw.polygon(self.win, color1, [top_left, top_right, bottom_right])
-        pg.draw.polygon(self.win, color2, [top_left, bottom_left, bottom_right])
+        # Draw the two triangles for each corner of intersection
+        if x == 10 and y == 10:
+            pg.draw.polygon(self.win, north_south_color, [top_left, top_right, bottom_right])
+            pg.draw.polygon(self.win, east_west_color, [top_left, bottom_left, bottom_right])
+        elif x == 13 and y == 10:
+            pg.draw.polygon(self.win, north_south_color, [top_left, top_right, bottom_left])
+            pg.draw.polygon(self.win, east_west_color, [top_right, bottom_left, bottom_right])
+        elif x == 13 and y == 13:
+            pg.draw.polygon(self.win, east_west_color, [top_left, top_right, bottom_right])
+            pg.draw.polygon(self.win, north_south_color, [top_left, bottom_left, bottom_right])
+        elif x == 10 and y == 13:
+            pg.draw.polygon(self.win, east_west_color, [top_left, top_right, bottom_left])
+            pg.draw.polygon(self.win, north_south_color, [top_right, bottom_left, bottom_right])
+    
 
 
-
+    def get_light_color(self, x, y):
+        for light in self.traffic_lights:
+            if light.x == x and light.y == y:
+                if light.state == 'RED':
+                    return RED_LIGHT
+                elif light.state == 'YELLOW':
+                    return YELLOW_LIGHT
+                elif light.state == 'GREEN':
+                    return GREEN_LIGHT
+        return SIDEWALK_COLOR  # Default to sidewalk color if no adjacent light
 
 if __name__ == "__main__":
     sim = Simulation(WIN, clock)
