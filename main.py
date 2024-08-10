@@ -3,13 +3,6 @@ import sys
 
 
 
-# Initialize pygame
-pg.init()
-
-# Set up display
-WIDTH, HEIGHT = 800, 600
-WIN = pg.display.set_mode((WIDTH, HEIGHT))
-pg.display.set_caption("ClearPath Simulation")
 
 # Set up colors
 ROAD_COLOR = (40, 40, 40)
@@ -20,201 +13,156 @@ YELLOW_LIGHT = (255, 255, 0)
 YELLOW_STRIPE = (225, 225, 15)
 BLOCK_COLOR = (0, 0, 0)
 
+# Other Global Variables
+NUMBER_OF_CARS = 10
+NUMBER_OF_PEDESTRIANS = 10
+NUMBER_OF_EMERGENCY_VEHICLES = 2
+FREQUENCY_OF_EVENTS = 0.1               # 10% chance of event happening every 5 seconds
+VEHICLE_BASE_SPEED = 8                  # pixels per second
+PEDESTRIAN_BASE_SPEED = 2               # pixels per second
+EMERGENCY_VEHICLE_BASE_SPEED = 10       # pixels per second
+GREEN_LIGHT_DURATION = 10               # seconds
+YELLOW_LIGHT_DURATION = 3               # seconds
+RED_LIGHT_DURATION = 13                 # seconds
+
+
+
+
+# Settings
+TILE_SIZE = 32              # pixels
+WIDTH, HEIGHT = 800, 600    # pixels
+GRID_SIZE = 24              # tiles
+
+# Initialize pygame
+pg.init()
+WIN = pg.display.set_mode((WIDTH, HEIGHT))
+pg.display.set_caption("ClearPath Simulation")
+clock = pg.time.Clock()
+
+class CityGrid:
+    def __init__(self, grid_size):
+        self.grid_size = grid_size
+        self.grid = self.create_grid()
+
+    def create_grid(self):
+        grid = [[0 for _ in range(self.grid_size)] for _ in range(self.grid_size)]
+        return grid
+
+    def set_city_elements(self):
+        # Set up roads
+        for i in range(self.grid_size):
+            self.grid[11][i] = 1
+            self.grid[i][11] = 1
+            self.grid[12][i] = 1
+            self.grid[i][12] = 1
+
+        # Set up sidewalks
+        for i in range(self.grid_size):
+            self.grid[10][i] = 2
+            self.grid[i][10] = 2
+            self.grid[13][i] = 2
+            self.grid[i][13] = 2
+
+    def draw(self, win):
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                if self.grid[i][j] == 1:
+                    color = ROAD_COLOR
+                elif self.grid[i][j] == 2:
+                    color = SIDEWALK_COLOR
+                else:
+                    color = BLOCK_COLOR
+                pg.draw.rect(win, color, (j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE))
+
+class TrafficLight:
+    def __init__(self, x, y, state='RED'):
+        self.x = x
+        self.y = y
+        self.state = state
+        self.timer = 0
+
+    def update(self):
+        self.timer += 1
+        if self.state == 'GREEN' and self.timer >= GREEN_LIGHT_DURATION * 60:
+            self.state = 'YELLOW'
+            self.timer = 0
+        elif self.state == 'YELLOW' and self.timer >= YELLOW_LIGHT_DURATION * 60:
+            self.state = 'RED'
+            self.timer = 0
+        elif self.state == 'RED' and self.timer >= RED_LIGHT_DURATION * 60:
+            self.state = 'GREEN'
+            self.timer = 0
+
+    def draw(self, win):
+        if self.state == 'RED':
+            color = RED_LIGHT
+        elif self.state == 'YELLOW':
+            color = YELLOW_LIGHT
+        else:
+            color = GREEN_LIGHT
+        pg.draw.rect(win, color, (self.y * TILE_SIZE, self.x * TILE_SIZE, TILE_SIZE, TILE_SIZE))
+
+# class Vehicle:
+#     def __init__(self, x, y, speed):
+#         self.x = x
+#         self.y = y
+#         self.speed = speed
+#         self.direction = 'EAST'
+
+#     def move(self):
+#         if self.direction == 'EAST':
+#             self.x += self.speed
+#         elif self.direction == 'WEST':
+#             self.x -= self.speed
+#         elif self.direction == 'NORTH':
+#             self.y -= self.speed
+#         elif self.direction == 'SOUTH':
+#             self.y += self.speed
 
+#     def draw(self, win):
+#         pg.draw.rect(win, (255, 255, 255), (self.x * TILE_SIZE, self.y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
 
-# Function to generate city grid
-def create_grid():
-    grid = []
-    for i in range(24):
-        grid.append([])
-        for j in range(24):
-            grid[i].append(0)
-    return grid
+class Simulation:
+    def __init__(self, win, clock):
+        self.win = win
+        self.clock = clock
+        self.city = CityGrid(GRID_SIZE)
+        self.city.set_city_elements()
+        self.traffic_lights = [
+            TrafficLight(10, 9, 'GREEN'), TrafficLight(10, 14, 'GREEN'), TrafficLight(13, 9, 'GREEN'), TrafficLight(13, 14, 'GREEN'),
+            TrafficLight(9, 10), TrafficLight(14, 10), TrafficLight(9, 13), TrafficLight(14, 13)
+            ]
 
+    def run(self):
+        running = True
+        while running:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
 
-def set_city_elements(grid):
-    # Set up roads
-    for i in range(24):
-        grid[11][i] = 1
-        grid[i][11] = 1
-        grid[12][i] = 1
-        grid[i][12] = 1
+            self.update()
+            self.draw()
 
-    # Set up sidewalks
-    for i in range(24):
-        grid[10][i] = 2
-        grid[i][10] = 2
-        grid[13][i] = 2
-        grid[i][13] = 2
+            pg.display.flip()
+            self.clock.tick(60)
+        pg.quit()
 
-def set_traffic_lights(grid):
-    # Set up traffic lights
-    east_west_lights = [[10][9], [10][14], [13][9], [13][14]]
-    north_south_lights = [[9][10], [14][10], [9][13], [14][13]]
-    cells_to_split = [[10][10], [10][13], [13][10], [13][13]]
+    def update(self):
+        for light in self.traffic_lights:
+            light.update()
 
-    for cell in east_west_lights:
-        grid[cell[0]][cell[1]] = 3
-    for cell in north_south_lights:
-        grid[cell[0]][cell[1]] = 4
-    for cell in cells_to_split:
-        grid[cell[0]][cell[1]] = 5
 
 
+    def draw(self):
+        self.city.draw(self.win)
 
+        for light in self.traffic_lights:
+            light.draw(self.win)
 
 
 
 
-def draw_split_cell(cell):
-    # Split cell into two triangles
-    pass
-
-
-
-# function to paint grid as road with intersection, and sidewalks and lights
-
-
-
-
-# Class for traffic light objects (include cell location, color, and state)
-# TODO: How to split one cell into triangle for cell where two traffic lights meet?
-# Traffic light needs timer and rules
-
-
-# Class for pedestrians (include cell location, speed, direction, and state)
-
-
-# Class for vehicles
-
-
-# Class for emergency vehicles
-
-
-# Class for events (911 call, pursuit, etc.)
-
-
-# Rules for intersection, include what cells cars should stop at, what cells pedestrians should stop at, etc.
-## If traffic light turns yellow, cars should stop at intersection unless < 2 seconds of yellow have passed and 
-## they are in the nearest cell to the intersection
-## If traffic light turns red, cars should stop at intersection or behind the stopped car in front of them
-
-# If 4-way stop is in effect, cars should stop and 'check' if other cars are stopped before proceeding
-# TODO: write 4-way stop algorithm
-
-
-# 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Scenario 1: 911 Call for a Broken Leg at a Specific Address
-# Initialize map data 
-# Initialize AI agents (Agent class) for event handling
-
-# # Phase 1 - Analyze and Calculate Cone
-# Function handle_911_call(caller_address, emergency_vehicle_ids): 
-#     Create event object with event ID 
-#     For each vehicle_id in emergency_vehicle_ids: 
-#         Create vehicle object with vehicle_id 
-#         Plot vehicle on map 
-
-#     While event is active: 
-#         For each vehicle in event vehicles: 
-#             Update vehicle's speed, direction, x, y coordinates 
-#             Calculate potential path to caller_address 
-#             Define 'cone' of influence for each path
-
-#     # Phase 2 - Action, Clear the Path, Listen
-#     Function update_traffic_lights(cone): 
-#         For each traffic light in cone: 
-#             Set traffic light to blinking red 4-way stop 
-
-#     Function monitor_dispatch(): 
-#         Listen for keywords in dispatcher updates 
-#         If transport needed to hospital: 
-#             Calculate path from caller_address to hospital 
-#             Extend cone to include path to hospital 
-#             Update traffic lights for extended cone 
-#             If dispatch overrides with specific hospital: 
-#                 Recalculate path and update traffic lights 
-
-#     While event is active: 
-#         Update_traffic_lights(cone) 
-#         Monitor_dispatch() 
-
-#     End while 
-# End function
-
-
-
-# Scenario 2: Police Officer Begins to Pursue a Suspect
-# Function handle_pursuit(lead_pursuer_id, supporting_vehicle_ids):
-#     Create pursuit event object with event ID
-#     Create lead pursuer object with lead_pursuer_id
-#     Plot lead pursuer on map
-
-#     For each vehicle_id in supporting_vehicle_ids:
-#         Create vehicle object with vehicle_id
-#         Plot vehicle on map
-
-#     While pursuit is active:
-#         Update lead pursuer's speed, direction, x, y coordinates
-#         Calculate pursuit cone based on lead pursuer's data
-#         Define wider area for pursuit cone
-#     Function update_pursuit_traffic_lights(cone):
-#         For each traffic light in cone:
-#             Set traffic light to blinking red 4-way stop
-#             Set crosswalk signals to blink "Stop" and emit audible signals
-
-#     Function update_electronic_signs(cone):
-#         For each electronic road sign in cone:
-#             Display pursuit alert message
-
-#     Function monitor_pursuit_dispatch():
-#         Listen for keywords in dispatcher updates
-#         If keyword detected (e.g., "gun", "erratic"):
-#             Expand cone area
-#             Notify schools and public venues in expanded cone
-#             Update traffic lights for expanded cone
-
-#     While pursuit is active:
-#         Update_pursuit_traffic_lights(cone)
-#         Update_electronic_signs(cone)
-#         Monitor_pursuit_dispatch()
-
-#     End while
-#     If pursuit ends:
-#         If further emergency response needed:
-#             Handle as regular emergency event with ClearPath
-
-# End function
+if __name__ == "__main__":
+    sim = Simulation(WIN, clock)
+    sim.run()
