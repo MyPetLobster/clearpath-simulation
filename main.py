@@ -16,13 +16,14 @@ BLOCK_COLOR = (0, 0, 0)
 NUMBER_OF_CARS = 10
 NUMBER_OF_PEDESTRIANS = 10
 NUMBER_OF_EMERGENCY_VEHICLES = 2
-FREQUENCY_OF_EVENTS = 0.1               # 10% chance of event happening every 5 seconds
+FREQUENCY_OF_EVENTS = 0.01               # 10% chance of event happening every 5 seconds
 VEHICLE_BASE_SPEED = 1                  # tiles per second
 PEDESTRIAN_BASE_SPEED = 0.3               # tiles per second
 EMERGENCY_VEHICLE_BASE_SPEED = 2        # tiles per second
 GREEN_LIGHT_DURATION = 10               # seconds
 YELLOW_LIGHT_DURATION = 3               # seconds
 RED_LIGHT_DURATION = 13                 # seconds
+
 
 # Settings
 TILE_SIZE = 32              # pixels
@@ -151,11 +152,6 @@ class Vehicle:
             # Allow vehicles to move off the screen if they are at the grid boundary
             return False
 
-
-     
-
-
-
     def draw(self, win):
         # Only draw if the vehicle is at least partially on screen
         if (0 <= int(self.x * TILE_SIZE) < WIDTH and 
@@ -194,19 +190,7 @@ class TrafficLight:
         self.y = y
         self.state = state
         self.timer = 0
-        # self.crosswalks = self.get_crosswalks()
 
-    # def get_crosswalks(self):
-    #     if self.x == 10 and self.y == 9:
-    #         return [(11, 10), (12, 10)]
-    #     elif self.x == 10 and self.y == 14:
-    #         return [(11, 13), (12, 13)]
-    #     elif self.x == 13 and self.y == 9:
-    #         return [(13, 11), (13, 12)]
-    #     elif self.x == 13 and self.y == 14:
-    #         return [(10, 11), (10, 12)]
-    #     else:
-    #         return []
 
     def update(self, grid):
         self.timer += 1
