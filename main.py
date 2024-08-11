@@ -16,7 +16,7 @@ BLOCK_COLOR = (0, 0, 0)
 NUMBER_OF_CARS = 10
 NUMBER_OF_PEDESTRIANS = 10
 NUMBER_OF_EMERGENCY_VEHICLES = 2
-FREQUENCY_OF_EVENTS = 0.01               # 10% chance of event happening every 5 seconds
+FREQUENCY_OF_EVENTS = 0.1               # 10% chance of event happening every 5 seconds
 VEHICLE_BASE_SPEED = 1                  # tiles per second
 PEDESTRIAN_BASE_SPEED = 0.3               # tiles per second
 EMERGENCY_VEHICLE_BASE_SPEED = 2        # tiles per second
@@ -62,10 +62,10 @@ class CityGrid:
             self.grid[i][13] = 'sidewalk'
 
         # Set up crosswalks
-        crosswalks = [(11,10), (12,10), (10,11), (10, 12), (13, 11), (13, 12), (11, 13), (12, 13)]
+        crosswalks = [(11,10), (12,10), (11, 13), (12, 13), (10,11), (10, 12), (13, 11), (13, 12)]
         for crosswalk in crosswalks:
-            self.grid[crosswalk[0]][crosswalk[1]] = 'occupied' ### This is normally "crosswalk", but for testing purposes, it's "occupied"
-
+            self.grid[crosswalk[0]][crosswalk[1]] = 'crosswalk'
+            
     def draw(self, win):
         for i in range(self.grid_size):
             for j in range(self.grid_size):
@@ -95,14 +95,11 @@ class Vehicle:
 
     def move(self):
         # Check ahead first to decide if the vehicle should stop
-        if not self.stopped:
-            self.check_ahead()
-        
-        if self.stopped:
-            return  # Don't move if the vehicle is stopped
-            
-        # Replace 'occupied' with 'road' or 'crosswalk' for the current position
-        crosswalk_coords = [(11,10), (12,10), (10,11), (10, 12), (13, 11), (13, 12), (11, 13), (12, 13)]
+        if self.check_ahead():
+            self.stopped = True
+            return
+        else:
+            self.stopped = False      
         prev_x, prev_y = int(self.x), int(self.y)
 
         # Move the vehicle
@@ -115,15 +112,21 @@ class Vehicle:
         elif self.direction == 'W':
             self.x -= self.speed
 
-        # Set grid to occupied for the new position if it's within the grid
-        if 0 <= int(self.y) < GRID_SIZE and 0 <= int(self.x) < GRID_SIZE:
-            self.grid[int(self.y)][int(self.x)] = 'occupied'
+        current_x, current_y = int(self.x), int(self.y)
+        print(f"Moving from ({prev_x}, {prev_y}) to ({current_x}, {current_y})")
 
-        # Set the old position to road or crosswalk
-        if (prev_y, prev_x) in crosswalk_coords:
-            self.grid[prev_y][prev_x] = 'crosswalk'
-        else:
-            self.grid[prev_y][prev_x] = 'road'
+        # Only reset the old position if the vehicle has fully left that tile
+        if (prev_x != current_x or prev_y != current_y) and 0 <= prev_y < GRID_SIZE and 0 <= prev_x < GRID_SIZE:
+            crosswalk_coords = [(11,10), (12,10), (11, 13), (12, 13), (10,11), (10, 12), (13, 11), (13, 12)]
+            if (prev_x, prev_y) in crosswalk_coords:
+                self.grid[prev_y][prev_x] = 'crosswalk'
+            else:
+                self.grid[prev_y][prev_x] = 'road'
+
+        # Set grid to occupied for the new position if it's within the grid
+        if 1 <= current_y < GRID_SIZE and 1 <= current_x < GRID_SIZE:   # Changed from 0 to 1 to fix negative indexing/'occupied' bug
+            self.grid[current_y][current_x] = 'occupied'
+
 
     def check_ahead(self):
         next_x, next_y = int(self.x), int(self.y)
@@ -138,10 +141,18 @@ class Vehicle:
 
         # Ensure next_x and next_y are within bounds before accessing the grid
         if 0 <= next_y < GRID_SIZE and 0 <= next_x < GRID_SIZE:
+            print(f"Checking ahead to ({next_x}, {next_y}), grid value: {self.grid[next_y][next_x]}")
             if self.grid[next_y][next_x] == 'occupied':
-                self.stopped = True
+                print(f"Vehicle at ({self.x}, {self.y}) is stopping")
+                return True
+            else:
+                return False
         else:
-            self.stopped = True  # Stop if the next position is out of bounds
+            # Allow vehicles to move off the screen if they are at the grid boundary
+            return False
+
+
+     
 
 
 
@@ -210,16 +221,6 @@ class TrafficLight:
         elif self.state == 'RED' and self.timer >= RED_LIGHT_DURATION * 60:
             self.state = 'GREEN'
             self.timer = 0
-            # self.mark_crosswalks(grid, False)
-
-    # def mark_crosswalks(self, grid, occupied):
-    #     for cx, cy in self.crosswalks:
-    #         if occupied:
-    #             grid[cx][cy] = 'occupied'
-    #         else:
-    #             # Check if there's a vehicle on the crosswalk before marking it as clear
-    #             if grid[cx][cy] != 'occupied':
-    #                 grid[cx][cy] = 'crosswalk'
 
     def draw(self, win):
         if self.state == 'RED':
