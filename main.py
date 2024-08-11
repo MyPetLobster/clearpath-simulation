@@ -74,10 +74,11 @@ class CityGrid:
                     color = ROAD_COLOR
                 elif self.grid[i][j] == 'sidewalk':
                     color = SIDEWALK_COLOR
-                elif self.grid[i][j] == 'crosswalk':
-                    color = CROSSWALK_COLOR
                 else:
                     color = BLOCK_COLOR
+
+                if (i, j) in [(11,10), (12,10), (11, 13), (12, 13), (10,11), (10, 12), (13, 11), (13, 12)]:
+                    color = CROSSWALK_COLOR
                 pg.draw.rect(win, color, (j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
 
@@ -223,12 +224,15 @@ class Simulation:
         self.clock = clock
         self.city = CityGrid(GRID_SIZE)
         self.city.set_city_elements()
-        self.traffic_lights = [
-            TrafficLight(10, 9, 'GREEN'), TrafficLight(10, 14, 'GREEN'), TrafficLight(13, 9, 'GREEN'), TrafficLight(13, 14, 'GREEN'),
-            TrafficLight(9, 10), TrafficLight(14, 10), TrafficLight(9, 13), TrafficLight(14, 13)
-            ]
+        self.ew_traffic_lights = [TrafficLight(10, 9, 'GREEN'), TrafficLight(10, 14, 'GREEN'), TrafficLight(13, 9, 'GREEN'), TrafficLight(13, 14, 'GREEN')]
+        self.ns_traffic_lights = [TrafficLight(9, 10), TrafficLight(14, 10), TrafficLight(9, 13), TrafficLight(14, 13)]
+        self.traffic_lights = self.ew_traffic_lights + self.ns_traffic_lights
+        self.ew_crosswalks = [(10,11), (10, 12), (13, 11), (13, 12)]
+        self.ns_crosswalks = [(11,10), (12,10), (11, 13), (12, 13)]
         self.split_tiles = [(10,10), (10,13), (13,10), (13,13)]
         self.vehicles = []
+
+
 
     def run(self):
         running = True
@@ -262,6 +266,10 @@ class Simulation:
         # Add new vehicles
         if random.random() < FREQUENCY_OF_EVENTS:
             self.add_vehicle()
+
+        # Update the grid to reflect the current state of the intersection
+        self.update_intersection(self.city.grid)
+
 
     def add_vehicle(self):
         direction = random.choice(['N', 'S', 'E', 'W'])
@@ -333,6 +341,21 @@ class Simulation:
                 elif light.state == 'GREEN':
                     return GREEN_LIGHT
         return RED_LIGHT       # Fallback color, should never reach here
+    
+
+    def update_intersection(self, grid):
+        if self.ew_traffic_lights[0].state == 'GREEN':
+            for tile in self.ew_crosswalks:
+                grid[tile[1]][tile[0]] = 'crosswalk'
+        else:
+            for tile in self.ew_crosswalks:
+                grid[tile[1]][tile[0]] = 'occupied'
+        if self.ns_traffic_lights[0].state == 'GREEN':
+            for tile in self.ns_crosswalks:
+                grid[tile[1]][tile[0]] = 'crosswalk'
+        else:
+            for tile in self.ns_crosswalks:
+                grid[tile[1]][tile[0]] = 'occupied'
     
 
 
