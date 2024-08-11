@@ -1,4 +1,5 @@
 import pygame as pg
+import random
 import sys
 
 # Set up colors
@@ -15,10 +16,10 @@ BLOCK_COLOR = (0, 0, 0)
 NUMBER_OF_CARS = 10
 NUMBER_OF_PEDESTRIANS = 10
 NUMBER_OF_EMERGENCY_VEHICLES = 2
-FREQUENCY_OF_EVENTS = 0.1               # 10% chance of event happening every 5 seconds
-VEHICLE_BASE_SPEED = 8                  # pixels per second
-PEDESTRIAN_BASE_SPEED = 2               # pixels per second
-EMERGENCY_VEHICLE_BASE_SPEED = 10       # pixels per second
+FREQUENCY_OF_EVENTS = 0.01               # 10% chance of event happening every 5 seconds
+VEHICLE_BASE_SPEED = 2                  # tiles per second
+PEDESTRIAN_BASE_SPEED = 1               # tiles per second
+EMERGENCY_VEHICLE_BASE_SPEED = 3        # tiles per second
 GREEN_LIGHT_DURATION = 10               # seconds
 YELLOW_LIGHT_DURATION = 3               # seconds
 RED_LIGHT_DURATION = 13                 # seconds
@@ -34,6 +35,8 @@ WIN = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("ClearPath Simulation")
 clock = pg.time.Clock()
 
+
+# ----- City Grid Class -----
 class CityGrid:
     def __init__(self, grid_size):
         self.grid_size = grid_size
@@ -76,6 +79,58 @@ class CityGrid:
                     color = BLOCK_COLOR
                 pg.draw.rect(win, color, (j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
+
+
+
+# ----- Vehicle Class -----
+class Vehicle:
+    def __init__(self, x, y, direction, color=(255,255,255), speed=VEHICLE_BASE_SPEED):
+        self.x = x
+        self.y = y
+        self.direction = direction
+        self.color = color
+        self.speed = speed
+
+
+    def move(self):
+        if self.direction == 'N':
+            self.y -= self.speed
+        elif self.direction == 'S':
+            self.y += self.speed
+        elif self.direction == 'E':
+            self.x += self.speed
+        elif self.direction == 'W':
+            self.x -= self.speed
+
+    def draw(self, win):
+        pg.draw.rect(win, self.color, (self.x * TILE_SIZE, self.y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
+
+    def is_off_screen(self):
+        return self.x < 0 or self.x >= GRID_SIZE or self.y < 0 or self.y >= GRID_SIZE
+    
+
+
+
+
+# ----- Pedestrian Class -----
+class Pedestrian:
+    def __init__(self, x, y, speed=PEDESTRIAN_BASE_SPEED):
+        self.x = x
+        self.y = y
+        self.speed = speed
+
+    def move(self):
+        pass
+
+    def draw(self, win):
+        pass
+
+
+# ----- Emergency Vehicle Class -----
+
+
+
+# ----- Traffic Light Class -----
 class TrafficLight:
     def __init__(self, x, y, state='RED'):
         self.x = x
@@ -104,6 +159,8 @@ class TrafficLight:
             color = GREEN_LIGHT
         pg.draw.rect(win, color, (self.y * TILE_SIZE, self.x * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
+
+# ----- Main Simulation Class -----
 class Simulation:
     def __init__(self, win, clock):
         self.win = win
@@ -115,6 +172,7 @@ class Simulation:
             TrafficLight(9, 10), TrafficLight(14, 10), TrafficLight(9, 13), TrafficLight(14, 13)
             ]
         self.split_tiles = [(10,10), (10,13), (13,10), (13,13)]
+        self.vehicles = []
 
     def run(self):
         running = True
@@ -134,15 +192,48 @@ class Simulation:
         for light in self.traffic_lights:
             light.update()
 
+        # Update vehicles
+        for vehicle in self.vehicles:
+            vehicle.move()
+            if vehicle.is_off_screen():
+                self.vehicles.remove(vehicle)
+
+        # Add new vehicles
+        if random.random() < FREQUENCY_OF_EVENTS:
+            self.add_vehicle()
+
+    def add_vehicle(self):
+        direction = random.choice(['N', 'S', 'E', 'W'])
+        if direction == 'N':
+            x = 12
+            y = 23
+        elif direction == 'S':
+            x = 11
+            y = 0
+        elif direction == 'E':
+            x = 0
+            y = 12
+        else:
+            x = 23
+            y = 11
+
+        color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        self.vehicles.append(Vehicle(x, y, direction, color))
+
+
     def draw(self):
         self.city.draw(self.win)
+        # Draw the split tiles
+        for (x, y) in self.split_tiles:
+            self.draw_split_tile(x, y)
 
         for light in self.traffic_lights:
             light.draw(self.win)
 
-        # Draw the split tiles
-        for (x, y) in self.split_tiles:
-            self.draw_split_tile(x, y)
+        for vehicle in self.vehicles:
+            vehicle.draw(self.win)
+
+
 
     def draw_split_tile(self, x, y):
         # Find the adjacent lights and match their colors
@@ -180,7 +271,9 @@ class Simulation:
                     return YELLOW_LIGHT
                 elif light.state == 'GREEN':
                     return GREEN_LIGHT
-        return SIDEWALK_COLOR  # Default to sidewalk color if no adjacent light
+        return RED_LIGHT       # Fallback color, should never reach here
+    
+
 
 if __name__ == "__main__":
     sim = Simulation(WIN, clock)
