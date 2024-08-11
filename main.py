@@ -131,13 +131,13 @@ class Vehicle:
     def check_ahead(self):
         next_x, next_y = int(self.x), int(self.y)
         if self.direction == 'N':
-            next_y = int(self.y - 1)
+            next_y = int(self.y - 2)
         elif self.direction == 'S':
-            next_y = int(self.y + 1)
+            next_y = int(self.y + 2)
         elif self.direction == 'E':
-            next_x = int(self.x + 1)
+            next_x = int(self.x + 2)
         elif self.direction == 'W':
-            next_x = int(self.x - 1)
+            next_x = int(self.x - 2)
 
         # Ensure next_x and next_y are within bounds before accessing the grid
         if 0 <= next_y < GRID_SIZE and 0 <= next_x < GRID_SIZE:
