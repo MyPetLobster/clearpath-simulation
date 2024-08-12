@@ -2,11 +2,13 @@ import pygame as pg
 import random
 import sys
 
-from config import *
+from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS
 from city import CityGrid
 from entities.vehicle import Vehicle, generate_vehicle
-from entities.traffic_light import TrafficLight, get_light_color
+from entities.traffic_light import TrafficLight, IntersectionManager, get_light_color
 from helpers import draw_split_tile
+
+
 
 
 # Initialize pygame
@@ -14,6 +16,8 @@ pg.init()
 WIN = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("ClearPath Simulation")
 clock = pg.time.Clock()
+
+
 
 
 class Simulation:
@@ -29,8 +33,9 @@ class Simulation:
         self.ns_crosswalks = [(11,10), (12,10), (11, 13), (12, 13)]
         self.split_tiles = [(10,10), (10,13), (13,10), (13,13)]
         self.vehicles = []
+        self.intersection_manager = IntersectionManager(self.city.grid, self.ew_traffic_lights, self.ns_traffic_lights, self.ew_crosswalks, self.ns_crosswalks)
 
-    # Add traffic lights to city grid data structure
+        # Add traffic lights to city grid data structure
         for light in self.traffic_lights:
             self.city.add_traffic_light(light)
 
@@ -72,7 +77,7 @@ class Simulation:
             self.vehicles.append(Vehicle(x, y, direction, self.city, color))
 
         # Update the grid to reflect the current state of the intersection
-        self.update_intersection(self.city.grid)
+        self.intersection_manager.update_intersection()
 
     def draw(self):
         self.city.draw(self.win)
@@ -90,33 +95,7 @@ class Simulation:
         for vehicle in self.vehicles:
             vehicle.draw(self.win)
 
-
-
     
-    def update_intersection(self, grid):
-        for light in self.traffic_lights:
-            if light.state == 'RED' or (light.state == 'YELLOW' and light.get_yellow_duration() > 1.5):
-                self.mark_crosswalks_occupied(light, grid)
-            else:
-                self.mark_crosswalks_clear(light, grid)
-
-    def mark_crosswalks_occupied(self, light, grid):
-        crosswalks = self.get_crosswalks_for_light(light)
-        for tile in crosswalks:
-            grid[tile[1]][tile[0]] = 'occupied'
-
-    def mark_crosswalks_clear(self, light, grid):
-        crosswalks = self.get_crosswalks_for_light(light)
-        for tile in crosswalks:
-            grid[tile[1]][tile[0]] = 'crosswalk'
-
-    def get_crosswalks_for_light(self, light):
-        if light in self.ew_traffic_lights:
-            return self.ew_crosswalks
-        else:
-            return self.ns_crosswalks
-    
-
 
 
 if __name__ == "__main__":

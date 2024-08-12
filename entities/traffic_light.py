@@ -41,7 +41,39 @@ class TrafficLight:
 
     def get_yellow_duration(self):
         return self.yellow_timer / 60  # Convert frames to seconds
-    
+
+
+class IntersectionManager:
+    def __init__(self, grid, ew_traffic_lights, ns_traffic_lights, ew_crosswalks, ns_crosswalks):
+        self.grid = grid
+        self.ew_traffic_lights = ew_traffic_lights
+        self.ns_traffic_lights = ns_traffic_lights
+        self.traffic_lights = self.ew_traffic_lights + self.ns_traffic_lights
+        self.ew_crosswalks = ew_crosswalks
+        self.ns_crosswalks = ns_crosswalks
+
+    def update_intersection(self):
+        for light in self.traffic_lights:
+            if light.state == 'RED' or (light.state == 'YELLOW' and light.get_yellow_duration() > 1.5):
+                self.mark_crosswalks_occupied(light)
+            else:
+                self.mark_crosswalks_clear(light)
+
+    def mark_crosswalks_occupied(self, light):
+        crosswalks = self.get_crosswalks_for_light(light)
+        for tile in crosswalks:
+            self.grid[tile[1]][tile[0]] = 'occupied'
+
+    def mark_crosswalks_clear(self, light):
+        crosswalks = self.get_crosswalks_for_light(light)
+        for tile in crosswalks:
+            self.grid[tile[1]][tile[0]] = 'crosswalk'
+
+    def get_crosswalks_for_light(self, light):
+        if light in self.ew_traffic_lights:
+            return self.ew_crosswalks
+        else:
+            return self.ns_crosswalks
 
 
 def get_light_color(traffic_lights, x, y):
