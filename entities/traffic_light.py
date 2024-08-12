@@ -41,3 +41,17 @@ class TrafficLight:
 
     def get_yellow_duration(self):
         return self.yellow_timer / 60  # Convert frames to seconds
+    
+
+
+def get_light_color(traffic_lights, x, y):
+    # Find the color of the light at the given position
+    for light in traffic_lights:
+        if light.x == x and light.y == y:
+            if light.state == 'RED':
+                return RED_LIGHT
+            elif light.state == 'YELLOW':
+                return YELLOW_LIGHT
+            elif light.state == 'GREEN':
+                return GREEN_LIGHT
+    return RED_LIGHT       # Fallback color, should never reach here

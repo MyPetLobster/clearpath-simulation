@@ -5,7 +5,7 @@ import sys
 from config import *
 from city import CityGrid
 from entities.vehicle import Vehicle, generate_vehicle
-from entities.traffic_light import TrafficLight
+from entities.traffic_light import TrafficLight, get_light_color
 from helpers import draw_split_tile
 
 
@@ -78,8 +78,10 @@ class Simulation:
         self.city.draw(self.win)
         # Draw the split tiles that connect two lights
         for (x, y) in self.split_tiles:
-            north_south_color = self.get_light_color(9, 10) 
-            east_west_color = self.get_light_color(10,9)
+            north_south_color = get_light_color(self.traffic_lights, 9, 10) 
+            east_west_color = get_light_color(self.traffic_lights, 10,9)
+
+            # Draw, color the split traffic light tiles
             draw_split_tile(self.win, north_south_color, east_west_color, x, y)
 
         # Draw the traffic lights and vehicles
@@ -89,17 +91,7 @@ class Simulation:
             vehicle.draw(self.win)
 
 
-    def get_light_color(self, x, y):
-        # Find the color of the light at the given position
-        for light in self.traffic_lights:
-            if light.x == x and light.y == y:
-                if light.state == 'RED':
-                    return RED_LIGHT
-                elif light.state == 'YELLOW':
-                    return YELLOW_LIGHT
-                elif light.state == 'GREEN':
-                    return GREEN_LIGHT
-        return RED_LIGHT       # Fallback color, should never reach here
+
     
     def update_intersection(self, grid):
         for light in self.traffic_lights:
