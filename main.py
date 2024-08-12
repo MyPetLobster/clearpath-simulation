@@ -68,8 +68,10 @@ class Simulation:
         running = True
         while running:
             for event in pg.event.get():
-                if event.type == pg.QUIT:
+                if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                     running = False
+                    pg.quit()
+                    sys.exit()
 
             self.update()
             self.draw()
@@ -77,6 +79,7 @@ class Simulation:
             pg.display.flip()
             self.clock.tick(60)
         pg.quit()
+        sys.exit()
 
     def update(self):
         """
