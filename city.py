@@ -83,12 +83,14 @@ class CityGrid:
 
                 # Draw yellow line between road tiles
                 if self.grid[i][j] == 'road':
-                    # Horizontal roads (between rows 11 and 12)
-                    if i == 12:
-                        pg.draw.line(win, YELLOW_STRIPE, (j * TILE_SIZE, i * TILE_SIZE), ((j + 1) * TILE_SIZE, i * TILE_SIZE))
-                    # Vertical roads (between columns 11 and 12)
-                    if j == 12:
-                        pg.draw.line(win, YELLOW_STRIPE, (j * TILE_SIZE, i * TILE_SIZE), (j * TILE_SIZE, (i + 1) * TILE_SIZE))
+                    # Exclude the intersection tiles
+                    if (i, j) not in [(11, 11), (11, 12), (12, 11), (12, 12)]:
+                        # Horizontal roads (between rows 11 and 12)
+                        if i == 12:
+                            pg.draw.line(win, YELLOW_STRIPE, (j * TILE_SIZE, i * TILE_SIZE), ((j + 1) * TILE_SIZE, i * TILE_SIZE))
+                        # Vertical roads (between columns 11 and 12)
+                        if j == 12:
+                            pg.draw.line(win, YELLOW_STRIPE, (j * TILE_SIZE, i * TILE_SIZE), (j * TILE_SIZE, (i + 1) * TILE_SIZE))
                         
     def add_traffic_light(self, traffic_light):
         """
