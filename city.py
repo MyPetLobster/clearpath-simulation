@@ -1,6 +1,6 @@
 import pygame as pg
 
-from config import ROAD_COLOR, SIDEWALK_COLOR, BLOCK_COLOR, CROSSWALK_COLOR, TILE_SIZE
+from config import ROAD_COLOR, SIDEWALK_COLOR, BLOCK_COLOR, CROSSWALK_COLOR, TILE_SIZE, YELLOW_STRIPE
 
 
 class CityGrid:
@@ -80,7 +80,16 @@ class CityGrid:
                     color = CROSSWALK_COLOR
 
                 pg.draw.rect(win, color, (j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE))
-                
+
+                # Draw yellow line between road tiles
+                if self.grid[i][j] == 'road':
+                    # Horizontal roads (between rows 11 and 12)
+                    if i == 12:
+                        pg.draw.line(win, YELLOW_STRIPE, (j * TILE_SIZE, i * TILE_SIZE), ((j + 1) * TILE_SIZE, i * TILE_SIZE))
+                    # Vertical roads (between columns 11 and 12)
+                    if j == 12:
+                        pg.draw.line(win, YELLOW_STRIPE, (j * TILE_SIZE, i * TILE_SIZE), (j * TILE_SIZE, (i + 1) * TILE_SIZE))
+                        
     def add_traffic_light(self, traffic_light):
         """
         Adds a traffic light to the city grid

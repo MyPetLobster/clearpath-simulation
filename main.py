@@ -68,7 +68,7 @@ class Simulation:
         running = True
         while running:
             for event in pg.event.get():
-                if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+                if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE or event.type == pg.QUIT:
                     running = False
                     pg.quit()
                     sys.exit()
