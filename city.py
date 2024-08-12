@@ -4,6 +4,21 @@ from config import ROAD_COLOR, SIDEWALK_COLOR, BLOCK_COLOR, CROSSWALK_COLOR, TIL
 
 
 class CityGrid:
+    """
+    Class to represent the city grid
+
+    Attributes:
+        - grid_size (int): The size of the grid
+        - grid (list): 2D list representing the city grid
+        - crosswalks (list): List of crosswalk coordinates
+        - traffic_lights (list): List of traffic lights in the city
+
+    Methods:
+        - create_grid: Creates a grid of size grid_size x grid_size
+        - set_city_elements: Sets up the roads, sidewalks, and crosswalks
+        - draw: Draws the city grid on the screen
+        - add_traffic_light: Adds a traffic light to the
+    """
     def __init__(self, grid_size):
         self.grid_size = grid_size
         self.grid = self.create_grid()
@@ -11,12 +26,19 @@ class CityGrid:
         self.traffic_lights = []
     
     def create_grid(self):
-        # Create a grid of size grid_size x grid_size 
+        """
+        Creates a grid of size grid_size x grid_size
+        
+        Returns:
+            - list: 2D list representing the city grid
+        """
         grid = [[0 for _ in range(self.grid_size)] for _ in range(self.grid_size)]
         return grid
 
     def set_city_elements(self):
-        # Set up roads
+        """
+        Sets up the roads, sidewalks, and crosswalks on the city grid
+        """
         for i in range(self.grid_size):
             self.grid[11][i] = 'road'
             self.grid[i][11] = 'road'
@@ -31,12 +53,19 @@ class CityGrid:
             self.grid[i][13] = 'sidewalk'
 
         # Set up crosswalks
-
         for crosswalk in self.crosswalks:
             self.grid[crosswalk[0]][crosswalk[1]] = 'crosswalk'
             
     def draw(self, win):
-        # Draw the grid on the screen
+        """
+        Draws the city grid on the screen
+
+        Args:
+            - win (Surface): The pygame window to draw on
+
+        Returns:
+            None
+        """
         for i in range(self.grid_size):
             for j in range(self.grid_size):
                 if self.grid[i][j] == 'road' or self.grid[i][j] == 'occupied':
@@ -53,6 +82,15 @@ class CityGrid:
                 pg.draw.rect(win, color, (j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE))
                 
     def add_traffic_light(self, traffic_light):
+        """
+        Adds a traffic light to the city grid
+
+        Args:
+            - traffic_light (TrafficLight): The traffic light to add
+
+        Returns:
+            None
+        """
         self.traffic_lights.append(traffic_light)
 
 

@@ -18,9 +18,28 @@ pg.display.set_caption("ClearPath Simulation")
 clock = pg.time.Clock()
 
 
-
-
 class Simulation:
+    """
+    Class to represent the simulation environment
+    
+    Attributes:
+        - win (Surface): The pygame window
+        - clock (Clock): The pygame clock
+        - city (CityGrid): The city grid
+        - ew_traffic_lights (list): List of east-west traffic lights
+        - ns_traffic_lights (list): List of north-south traffic lights
+        - traffic_lights (list): List of all traffic lights
+        - ew_crosswalks (list): List of east-west crosswalks
+        - ns_crosswalks (list): List of north-south crosswalks
+        - split_tiles (list): List of split tiles
+        - vehicles (list): List of vehicles in the simulation
+        - intersection_manager (IntersectionManager): The intersection manager
+
+    Methods:
+        - run: Main loop for the simulation
+        - update: Update the simulation state
+        - draw: Draw the simulation on the screen
+    """
     def __init__(self, win, clock):
         self.win = win
         self.clock = clock
@@ -40,7 +59,12 @@ class Simulation:
             self.city.add_traffic_light(light)
 
     def run(self):
-        # Main loop
+        """
+        Main loop for the simulation
+        
+        Returns:
+            None
+        """
         running = True
         while running:
             for event in pg.event.get():
@@ -55,6 +79,12 @@ class Simulation:
         pg.quit()
 
     def update(self):
+        """
+        Update the simulation state
+
+        Returns:
+            None
+        """
         # Update traffic lights
         for light in self.traffic_lights:
             light.update()
@@ -80,6 +110,12 @@ class Simulation:
         self.intersection_manager.update_intersection()
 
     def draw(self):
+        """
+        Draw the simulation on the screen
+        
+        Returns:
+            None
+        """
         self.city.draw(self.win)
         # Draw the split tiles that connect two lights
         for (x, y) in self.split_tiles:

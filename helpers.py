@@ -5,7 +5,19 @@ from config import TILE_SIZE
 
 
 def draw_split_tile(window, ns_color, ew_color, x, y):
-
+    """
+    Draw a split tile with different colored triangles.
+    
+    Args:
+        - window (Surface): The pygame window to draw on
+        - ns_color (tuple): RGB color tuple for the north-south road
+        - ew_color (tuple): RGB color tuple for the east-west road
+        - x (int): The x-coordinate of the tile
+        - y (int): The y-coordinate of the tile
+        
+    Returns:    
+        None
+    """
     # Define the corners of the selected tile that needs to be split
     top_left = (x * TILE_SIZE, y * TILE_SIZE)
     top_right = ((x + 1) * TILE_SIZE, y * TILE_SIZE)

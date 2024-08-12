@@ -6,6 +6,28 @@ from config import VEHICLE_BASE_SPEED, GRID_SIZE, TILE_SIZE, WIDTH, HEIGHT
 
 
 class Vehicle:
+    """
+    A class to represent a vehicle in the simulation.
+    
+    Attributes:
+        - x (float): The x-coordinate of the vehicle
+        - y (float): The y-coordinate of the vehicle
+        - direction (str): The direction the vehicle is traveling (N, S, E, W)
+        - color (tuple): The color of the vehicle
+        - speed (float): The speed of the vehicle
+        - city (CityGrid): The city grid the vehicle is traveling on
+        - grid (list): The grid of the city
+        - stopped (bool): Whether the vehicle is stopped
+        - in_intersection (bool): Whether the vehicle is in the intersection
+    
+    Methods:
+        - move: Move the vehicle in the direction it is traveling
+        - check_ahead: Check if the next tile is occupied or if the vehicle should stop
+        - get_relevant_light: Get the relevant traffic light for the vehicle's direction
+        - draw: Draw the vehicle on the screen
+        - is_off_screen: Check if the vehicle is off the screen
+    """
+
     def __init__(self, x, y, direction, city, color=(255,255,255)):
         self.x = x
         self.y = y
@@ -18,6 +40,20 @@ class Vehicle:
         self.in_intersection = False
 
     def move(self):
+        """
+        Move the vehicle based on its direction and speed, updating its position on the grid.
+
+        This method checks the traffic light ahead to determine if the vehicle should stop.
+        If movement is allowed, it updates the vehicle's position, marks the grid, and checks
+        if the vehicle is within an intersection.
+
+        Updates:
+            - `self.stopped`: Whether the vehicle is stopped.
+            - `self.in_intersection`: Whether the vehicle is within the intersection.
+        
+        Returns:
+            None
+        """
         # Get the relevant traffic light for the vehicle's direction
         relevant_light = self.get_relevant_light(self.city.traffic_lights)
         
@@ -61,6 +97,15 @@ class Vehicle:
             self.in_intersection = False
 
     def check_ahead(self, relevant_light):
+        """
+        Check if the vehicle should stop based on the traffic light ahead and the next tile.
+        
+        Args:
+            - relevant_light (TrafficLight): The traffic light relevant to the vehicle's direction.
+            
+        Returns:
+            - bool: Whether the vehicle should stop.
+        """
         # Check if the next tile is occupied
         next_x, next_y = int(self.x), int(self.y)
         if self.direction == 'N':
@@ -88,6 +133,15 @@ class Vehicle:
         return False
 
     def get_relevant_light(self, traffic_lights):
+        """
+        Get the relevant traffic light for the vehicle's direction.
+        
+        Args:
+            - traffic_lights (list): List of traffic lights in the simulation.
+            
+        Returns:
+            - TrafficLight: The relevant traffic light for the vehicle's direction.
+        """
         if self.direction == 'N':
             return next((light for light in traffic_lights if light.x == 13 and light.y == 14), None)
         elif self.direction == 'S':
@@ -99,6 +153,15 @@ class Vehicle:
 
 
     def draw(self, win):
+        """
+        Draw the vehicle on the screen.
+
+        Args:
+            - win (pygame.Surface): The window to draw the vehicle on.
+
+        Returns:
+            None
+        """
         # Only draw if the vehicle is at least partially on screen
         if (0 <= int(self.x * TILE_SIZE) < WIDTH and 
             0 <= int(self.y * TILE_SIZE) < HEIGHT):
@@ -110,6 +173,12 @@ class Vehicle:
 
 
 def generate_vehicle():
+    """
+    Generate a vehicle with a random starting position, direction, and color.
+
+    Returns:
+        - tuple: The x-coordinate, y-coordinate, direction, and color of the vehicle.
+    """
     # Pick a random direction/starting point for the vehicle
     direction = random.choice(['N', 'S', 'E', 'W'])
     if direction == 'N':
