@@ -4,7 +4,7 @@ import sys
 
 from config import *
 from city import CityGrid
-from entities.vehicle import Vehicle
+from entities.vehicle import Vehicle, generate_vehicle
 from entities.traffic_light import TrafficLight
 
 
@@ -66,28 +66,12 @@ class Simulation:
 
         # Add new vehicles
         if random.random() < FREQUENCY_OF_EVENTS:
-            self.add_vehicle()
+            # Generate a vehicle with random starting position/direction & add it to the list
+            x, y, direction, color = generate_vehicle()
+            self.vehicles.append(Vehicle(x, y, direction, self.city, color))
 
         # Update the grid to reflect the current state of the intersection
         self.update_intersection(self.city.grid)
-
-    def add_vehicle(self):
-        # Pick a random direction/starting point for the vehicle
-        direction = random.choice(['N', 'S', 'E', 'W'])
-        if direction == 'N':
-            x, y = 12, 23
-        elif direction == 'S':
-            x, y = 11, 0
-        elif direction == 'E':
-            x, y = 0, 12
-        else:
-            x, y = 23, 11
-
-        # Choose a random color for the vehicle
-        color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-
-        # Add the vehicle to the list
-        self.vehicles.append(Vehicle(x, y, direction, self.city, color))
 
     def draw(self):
         self.city.draw(self.win)

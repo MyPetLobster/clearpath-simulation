@@ -106,3 +106,22 @@ class Vehicle:
     
     def is_off_screen(self):
         return self.x < 0 or self.x > GRID_SIZE or self.y < 0 or self.y > GRID_SIZE
+    
+
+
+def generate_vehicle():
+    # Pick a random direction/starting point for the vehicle
+    direction = random.choice(['N', 'S', 'E', 'W'])
+    if direction == 'N':
+        x, y = 12, 23
+    elif direction == 'S':
+        x, y = 11, 0
+    elif direction == 'E':
+        x, y = 0, 12
+    else:
+        x, y = 23, 11
+
+    # Choose a random color for the vehicle
+    color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+
+    return x, y, direction, color
