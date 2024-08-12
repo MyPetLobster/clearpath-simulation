@@ -44,6 +44,7 @@ class CityGrid:
         self.grid_size = grid_size
         self.grid = self.create_grid()
         self.crosswalks = [(11,10), (12,10), (11, 13), (12, 13), (10,11), (10, 12), (13, 11), (13, 12)]
+        self.traffic_lights = []
     
     def create_grid(self):
         # Create a grid of size grid_size x grid_size 
@@ -81,28 +82,35 @@ class CityGrid:
                 else:
                     color = BLOCK_COLOR
                 
-                # Decouple name and color for crosswalks. Need use "occupied" in crosswalk tiles to control intersection
+                # Decouple name and color for crosswalks. Need to use "occupied" in crosswalk tiles to control intersection
                 if (i, j) in self.crosswalks:
                     color = CROSSWALK_COLOR
 
                 pg.draw.rect(win, color, (j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE))
-
+                
+    def add_traffic_light(self, traffic_light):
+        self.traffic_lights.append(traffic_light)
 
 
 
 class Vehicle:
-    def __init__(self, x, y, direction, grid, color=(255,255,255)):
+    def __init__(self, x, y, direction, city, color=(255,255,255)):
         self.x = x
         self.y = y
         self.direction = direction
         self.color = color
         self.speed = random.uniform(0.1, 1) * VEHICLE_BASE_SPEED
-        self.grid = grid
+        self.city = city
+        self.grid = city.grid
         self.stopped = False
+        self.in_intersection = False
 
     def move(self):
-        # Check ahead first to decide if the vehicle should stop
-        if self.check_ahead():
+        # Get the relevant traffic light for the vehicle's direction
+        relevant_light = self.get_relevant_light(self.city.traffic_lights)
+        
+        # Check ahead to decide if the vehicle should stop
+        if self.check_ahead(relevant_light):
             self.stopped = True
             return
         else:
@@ -129,10 +137,18 @@ class Vehicle:
             self.grid[prev_y][prev_x] = 'road'
 
         # Set grid to occupied for the new position if it's within the grid
-        if 1 <= current_y < GRID_SIZE and 1 <= current_x < GRID_SIZE:   # Changed from 0 to 1 to fix negative indexing/'occupied' bug
+        if 1 <= current_y < GRID_SIZE and 1 <= current_x < GRID_SIZE:  # Changed from 0 to 1 to fix negative indexing/'occupied' bug
             self.grid[current_y][current_x] = 'occupied'
 
-    def check_ahead(self):
+        # Check if vehicle has entered or exited the intersection
+        if self.direction in ['N', 'S'] and 10 <= self.y <= 13:
+            self.in_intersection = True
+        elif self.direction in ['E', 'W'] and 10 <= self.x <= 13:
+            self.in_intersection = True
+        else:
+            self.in_intersection = False
+
+    def check_ahead(self, relevant_light):
         # Check if the next tile is occupied
         next_x, next_y = int(self.x), int(self.y)
         if self.direction == 'N':
@@ -149,11 +165,26 @@ class Vehicle:
             # If the next tile is occupied, stop the vehicle
             if self.grid[next_y][next_x] == 'occupied':
                 return True
-            else:
-                return False
-        else:
-            # Allow vehicles to move off the screen if they are at the grid boundary
-            return False
+
+        # Check for yellow light
+        if relevant_light and relevant_light.state == 'YELLOW':
+            yellow_duration = relevant_light.get_yellow_duration()
+            if yellow_duration > 1.5 and not self.in_intersection:
+                return True  # Stop for yellow light if it's been on for more than 1.5 seconds and not in intersection
+
+        # If we've reached this point, there's no reason to stop
+        return False
+
+    def get_relevant_light(self, traffic_lights):
+        if self.direction == 'N':
+            return next((light for light in traffic_lights if light.x == 13 and light.y == 14), None)
+        elif self.direction == 'S':
+            return next((light for light in traffic_lights if light.x == 10 and light.y == 9), None)
+        elif self.direction == 'E':
+            return next((light for light in traffic_lights if light.x == 9 and light.y == 10), None)
+        elif self.direction == 'W':
+            return next((light for light in traffic_lights if light.x == 14 and light.y == 13), None)
+
 
     def draw(self, win):
         # Only draw if the vehicle is at least partially on screen
@@ -194,12 +225,15 @@ class TrafficLight:
         self.y = y
         self.state = state
         self.timer = 0
+        self.yellow_timer = 0
 
     def update(self):
-        # Increment the timer
         self.timer += 1
+        if self.state == 'YELLOW':
+            self.yellow_timer += 1
+        else:
+            self.yellow_timer = 0
 
-        # Update the state of the light
         if self.state == 'GREEN' and self.timer >= GREEN_LIGHT_DURATION * 60:
             self.state = 'YELLOW'
             self.timer = 0
@@ -221,7 +255,8 @@ class TrafficLight:
 
         pg.draw.rect(win, color, (self.y * TILE_SIZE, self.x * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
-
+    def get_yellow_duration(self):
+        return self.yellow_timer / 60  # Convert frames to seconds
 
 
 class Simulation:
@@ -237,6 +272,10 @@ class Simulation:
         self.ns_crosswalks = [(11,10), (12,10), (11, 13), (12, 13)]
         self.split_tiles = [(10,10), (10,13), (13,10), (13,13)]
         self.vehicles = []
+
+    # Add traffic lights to city grid data structure
+        for light in self.traffic_lights:
+            self.city.add_traffic_light(light)
 
     def run(self):
         # Main loop
@@ -292,7 +331,7 @@ class Simulation:
         color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
         # Add the vehicle to the list
-        self.vehicles.append(Vehicle(x, y, direction, self.city.grid, color))
+        self.vehicles.append(Vehicle(x, y, direction, self.city, color))
 
     def draw(self):
         self.city.draw(self.win)
@@ -344,19 +383,27 @@ class Simulation:
         return RED_LIGHT       # Fallback color, should never reach here
     
     def update_intersection(self, grid):
-        # Set crosswalk to 'occupied' if the light is red
-        if self.ew_traffic_lights[0].state == 'GREEN':
-            for tile in self.ew_crosswalks:
-                grid[tile[1]][tile[0]] = 'crosswalk'
+        for light in self.traffic_lights:
+            if light.state == 'RED' or (light.state == 'YELLOW' and light.get_yellow_duration() > 1.5):
+                self.mark_crosswalks_occupied(light, grid)
+            else:
+                self.mark_crosswalks_clear(light, grid)
+
+    def mark_crosswalks_occupied(self, light, grid):
+        crosswalks = self.get_crosswalks_for_light(light)
+        for tile in crosswalks:
+            grid[tile[1]][tile[0]] = 'occupied'
+
+    def mark_crosswalks_clear(self, light, grid):
+        crosswalks = self.get_crosswalks_for_light(light)
+        for tile in crosswalks:
+            grid[tile[1]][tile[0]] = 'crosswalk'
+
+    def get_crosswalks_for_light(self, light):
+        if light in self.ew_traffic_lights:
+            return self.ew_crosswalks
         else:
-            for tile in self.ew_crosswalks:
-                grid[tile[1]][tile[0]] = 'occupied'
-        if self.ns_traffic_lights[0].state == 'GREEN':
-            for tile in self.ns_crosswalks:
-                grid[tile[1]][tile[0]] = 'crosswalk'
-        else:
-            for tile in self.ns_crosswalks:
-                grid[tile[1]][tile[0]] = 'occupied'
+            return self.ns_crosswalks
     
 
 
