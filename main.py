@@ -6,6 +6,7 @@ from config import *
 from city import CityGrid
 from entities.vehicle import Vehicle, generate_vehicle
 from entities.traffic_light import TrafficLight
+from helpers import draw_split_tile
 
 
 # Initialize pygame
@@ -77,7 +78,9 @@ class Simulation:
         self.city.draw(self.win)
         # Draw the split tiles that connect two lights
         for (x, y) in self.split_tiles:
-            self.draw_split_tile(x, y)
+            north_south_color = self.get_light_color(9, 10) 
+            east_west_color = self.get_light_color(10,9)
+            draw_split_tile(self.win, north_south_color, east_west_color, x, y)
 
         # Draw the traffic lights and vehicles
         for light in self.traffic_lights:
@@ -85,31 +88,7 @@ class Simulation:
         for vehicle in self.vehicles:
             vehicle.draw(self.win)
 
-    def draw_split_tile(self, x, y):
-        # Find the corresponding lights and match their colors
-        north_south_color = self.get_light_color(9, 10) 
-        east_west_color = self.get_light_color(10,9)
 
-        # Define the corners of the selected tile that needs to be split
-        top_left = (x * TILE_SIZE, y * TILE_SIZE)
-        top_right = ((x + 1) * TILE_SIZE, y * TILE_SIZE)
-        bottom_left = (x * TILE_SIZE, (y + 1) * TILE_SIZE)
-        bottom_right = ((x + 1) * TILE_SIZE, (y + 1) * TILE_SIZE)
-
-        # Split tile into appropriate colored triangles
-        if x == 10 and y == 10:
-            pg.draw.polygon(self.win, north_south_color, [top_left, top_right, bottom_right])
-            pg.draw.polygon(self.win, east_west_color, [top_left, bottom_left, bottom_right])
-        elif x == 13 and y == 10:
-            pg.draw.polygon(self.win, north_south_color, [top_left, top_right, bottom_left])
-            pg.draw.polygon(self.win, east_west_color, [top_right, bottom_left, bottom_right])
-        elif x == 13 and y == 13:
-            pg.draw.polygon(self.win, east_west_color, [top_left, top_right, bottom_right])
-            pg.draw.polygon(self.win, north_south_color, [top_left, bottom_left, bottom_right])
-        elif x == 10 and y == 13:
-            pg.draw.polygon(self.win, east_west_color, [top_left, top_right, bottom_left])
-            pg.draw.polygon(self.win, north_south_color, [top_right, bottom_left, bottom_right])
-    
     def get_light_color(self, x, y):
         # Find the color of the light at the given position
         for light in self.traffic_lights:
