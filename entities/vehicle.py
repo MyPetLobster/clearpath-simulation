@@ -37,6 +37,7 @@ class Vehicle:
         self.city = city
         self.grid = city.grid
         self.stopped = False
+        self.pulled_over = False
         self.in_intersection = False
 
     def move(self):
@@ -54,9 +55,14 @@ class Vehicle:
         Returns:
             None
         """
+        # Check if the vehicle should pull over for an emergency vehicle
+        if self.pulled_over:
+            return
+        
         # Get the relevant traffic light for the vehicle's direction
         relevant_light = self.get_relevant_light(self.city.traffic_lights)
         
+
         # Check ahead to decide if the vehicle should stop
         if self.check_ahead(relevant_light):
             self.stopped = True
@@ -96,6 +102,8 @@ class Vehicle:
         else:
             self.in_intersection = False
 
+
+
     def check_ahead(self, relevant_light):
         """
         Check if the vehicle should stop based on the traffic light ahead and the next tile.
@@ -131,6 +139,100 @@ class Vehicle:
 
         # If we've reached this point, there's no reason to stop
         return False
+    
+    def check_behind(self, vehicles):
+        """
+        Check 5 tiles behind and 2 tiles ahead of the vehicle to check for oncoming emergency vehicles in code 3 mode.
+        
+        Args:
+            - vehicles (list): List of vehicles in the simulation.
+            
+        Modifies:
+            - self.stopped: Whether the vehicle should stop.
+            - self.x, self.y: The position of the vehicle.
+        """
+        if self.pulled_over:
+            # Check if it's safe to merge back
+            self.merge(vehicles)
+        else:
+            # Check the area behind and ahead for Code 3 emergency vehicles
+            for vehicle in vehicles:
+                if isinstance(vehicle, EmergencyVehicle) and vehicle.code3:
+                    if self.is_emergency_vehicle_in_range(vehicle):
+                        self.pull_over()
+                        return
+                    
+    def is_emergency_vehicle_in_range(self, vehicle):
+        """
+        Determine if an emergency vehicle is within the check range.
+        
+        Args:
+            vehicle (Vehicle): The vehicle to check.
+            
+        Returns:
+            bool: True if the vehicle is within range, False otherwise.
+        """
+        if self.direction == vehicle.direction:
+            if self.direction == "N" and self.y - 2 <= vehicle.y <= self.y + 5:
+                return True
+            elif self.direction == "S" and self.y - 5 <= vehicle.y <= self.y + 2:
+                return True
+            elif self.direction == "E" and self.x - 5 <= vehicle.x <= self.x + 2:
+                return True
+            elif self.direction == "W" and self.x - 2 <= vehicle.x <= self.x + 5:
+                return True
+        return False
+    
+    def pull_over(self):
+        """
+        Move the vehicle to the right side of the road if there's an emergency vehicle approaching.
+        """
+        # Ensure the vehicle stops
+        self.stopped = True
+        self.pulled_over = True
+
+        if self.direction == 'N':
+            self.x += 1  # Move right
+            if self.x == 11 or self.x == 12:        # Check if vehicle is in intersection
+                self.y -= 2 # Move up
+        elif self.direction == 'S':
+            self.x -= 1  # Move left
+            if self.x == 11 or self.x == 12:
+                self.y += 2 # Move down
+        elif self.direction == 'E':
+            self.y += 1  # Move up
+            if self.y == 11 or self.y == 12:
+                self.x += 2 # Move right
+        elif self.direction == 'W':
+            self.y -= 1  # Move down
+            if self.y == 11 or self.y == 12:
+                self.x -= 2 # Move left
+        
+        
+
+    def merge(self, vehicles):
+        """
+        Merge the vehicle back into the road after pulling over.
+        """
+        # Check if there's still an emergency vehicle within the danger zone
+        for vehicle in vehicles:
+            if isinstance(vehicle, EmergencyVehicle) and vehicle.code3:
+                if self.is_emergency_vehicle_in_range(vehicle):
+                    return  # Stay pulled over if the emergency vehicle is still nearby
+
+        # Merge back to the road
+        if self.direction == 'N':
+            self.x -= 1  # Move back to the left
+        elif self.direction == 'S':
+            self.x += 1  # Move back to the right
+        elif self.direction == 'E':
+            self.y -= 1  # Move back down
+        elif self.direction == 'W':
+            self.y += 1  # Move back up
+
+        self.pulled_over = False
+        self.stopped = False  # Allow the vehicle to move again
+
 
     def get_relevant_light(self, traffic_lights):
         """
@@ -193,7 +295,6 @@ class EmergencyVehicle(Vehicle):
             - bool: Whether the vehicle should stop.
         """
         if self.code3:
-            print("Ignoring traffic light!")
             return False
         else:
             return super().check_ahead(relevant_light)
@@ -228,8 +329,6 @@ def generate_emergency_vehicle():
         x, y = 23, 11
 
     is_code3 = random.random() < 0.5       # 50% chance of generating a vehicle in code 3 mode
-    
-    print("is_code3:", is_code3)
 
     return x, y, direction, is_code3
 

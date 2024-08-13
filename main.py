@@ -95,10 +95,15 @@ class Simulation:
         # Flash Emergency Vehicle Lights
         for vehicle in self.vehicles:
             if isinstance(vehicle, EmergencyVehicle):
-                print(f'vehicle code3: {vehicle.code3}')
                 if vehicle.code3:
-                    print("Code 3 Emergency Vehicle Identified")
                     vehicle.flash_lights()
+
+        # Have vehicles check behind for oncoming emergency vehicles
+        for vehicle in self.vehicles:
+            if isinstance(vehicle, EmergencyVehicle) and vehicle.code3:
+                pass
+            else:
+                vehicle.check_behind(self.vehicles)
 
         # Update vehicles
         vehicles_to_remove = []
