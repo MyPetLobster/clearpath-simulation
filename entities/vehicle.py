@@ -173,10 +173,10 @@ class Vehicle:
 
 
 class EmergencyVehicle(Vehicle):
-    def __init__(self, x, y, direction, city, color=(255,255,255)):
+    def __init__(self, x, y, direction, city, code3, color=(255,255,255)):
         super().__init__(x, y, direction, city, color)      # initialize the vehicle with the same attributes
-        self.speed = VEHICLE_BASE_SPEED
-        self.code3 = False       # whether the vehicle is in code 3 mode (lights and sirens)
+        self.speed = random.uniform(0.1, 1) * VEHICLE_BASE_SPEED * 1.3    # increase the speed of the emergency vehicle
+        self.code3 = code3    # whether the vehicle is in code 3 mode (lights and sirens)
 
     def check_ahead(self, relevant_light):
         """
@@ -190,43 +190,19 @@ class EmergencyVehicle(Vehicle):
             - bool: Whether the vehicle should stop.
         """
         if self.code3:
+            print("Ignoring traffic light!")
             return False
         else:
             return super().check_ahead(relevant_light)
 
-    def activate_code3(self):
-        """
-        Activate code 3 mode for the emergency vehicle.
-        ** Code 3 mode allows the vehicle to ignore traffic lights. **
-
-        Modifies:
-            - `self.code3`: Whether the vehicle is in code 3 mode.
-
-        Returns:
-            None
-        """
-        self.code3 = True
-
-    def deactivate_code3(self):
-        """
-        Deactivate code 3 mode for the emergency vehicle.
-
-        Modifies:
-            - `self.code3`: Whether the vehicle is in code 3 mode.
-
-        Returns:
-            None
-        """
-        self.code3 = False
-
     def flash_lights(self):
         """This function makes the color of the emergency vehicle cycle between red, white, and blue"""
-        if self.color == (255,0,0):
-            self.color = (255,255,255)
-        elif self.color == (255,255,255):
-            self.color = (0,0,255)
+        if self.color == (255, 0, 0):
+            self.color = (255, 255, 255)
+        elif self.color == (255, 255, 255):
+            self.color = (0, 0, 255)
         else:
-            self.color = (255,0,0)
+            self.color = (255, 0, 0)
 
 
 
@@ -248,7 +224,9 @@ def generate_emergency_vehicle():
     else:
         x, y = 23, 11
 
-    is_code3 = random.random() < 0.1       # 10% chance of generating a vehicle in code 3 mode
+    is_code3 = random.random() < 0.5       # 50% chance of generating a vehicle in code 3 mode
+    
+    print("is_code3:", is_code3)
 
     return x, y, direction, is_code3
 

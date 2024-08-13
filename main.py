@@ -4,7 +4,7 @@ import sys
 
 from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS
 from city import CityGrid
-from entities.vehicle import Vehicle, generate_vehicle
+from entities.vehicle import Vehicle, EmergencyVehicle, generate_vehicle, generate_emergency_vehicle
 from entities.traffic_light import TrafficLight, IntersectionManager, get_light_color
 from helpers import draw_split_tile
 
@@ -92,6 +92,14 @@ class Simulation:
         for light in self.traffic_lights:
             light.update()
 
+        # Flash Emergency Vehicle Lights
+        for vehicle in self.vehicles:
+            if isinstance(vehicle, EmergencyVehicle):
+                print(f'vehicle code3: {vehicle.code3}')
+                if vehicle.code3:
+                    print("Code 3 Emergency Vehicle Identified")
+                    vehicle.flash_lights()
+
         # Update vehicles
         vehicles_to_remove = []
         for vehicle in self.vehicles:
@@ -108,6 +116,12 @@ class Simulation:
             # Generate a vehicle with random starting position/direction & add it to the list
             x, y, direction, color = generate_vehicle()
             self.vehicles.append(Vehicle(x, y, direction, self.city, color))
+
+        # Add new emergency vehicles
+        if random.random() < FREQUENCY_OF_EVENTS / 10:
+            # Generate an emergency vehicle with random starting position/direction & add it to the list
+            x, y, direction, is_code3 = generate_emergency_vehicle()
+            self.vehicles.append(EmergencyVehicle(x, y, direction, self.city, is_code3))
 
         # Update the grid to reflect the current state of the intersection
         self.intersection_manager.update_intersection()
