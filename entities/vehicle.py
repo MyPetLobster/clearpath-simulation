@@ -33,7 +33,7 @@ class Vehicle:
         self.y = y
         self.direction = direction
         self.color = color
-        self.speed = random.uniform(0.1, 1) * VEHICLE_BASE_SPEED
+        self.speed = random.uniform(0.3, 0.7) * VEHICLE_BASE_SPEED
         self.city = city
         self.grid = city.grid
         self.stopped = False
@@ -175,8 +175,11 @@ class Vehicle:
 class EmergencyVehicle(Vehicle):
     def __init__(self, x, y, direction, city, code3, color=(255,255,255)):
         super().__init__(x, y, direction, city, color)      # initialize the vehicle with the same attributes
-        self.speed = random.uniform(0.1, 1) * VEHICLE_BASE_SPEED * 1.3    # increase the speed of the emergency vehicle
         self.code3 = code3    # whether the vehicle is in code 3 mode (lights and sirens)
+        if self.code3:
+            self.speed = VEHICLE_BASE_SPEED * 0.7    # increase the speed of the emergency vehicle
+        else:
+            self.speed = VEHICLE_BASE_SPEED
 
     def check_ahead(self, relevant_light):
         """

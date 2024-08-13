@@ -118,7 +118,7 @@ class Simulation:
             self.vehicles.append(Vehicle(x, y, direction, self.city, color))
 
         # Add new emergency vehicles
-        if random.random() < FREQUENCY_OF_EVENTS / 10:
+        if random.random() < FREQUENCY_OF_EVENTS / 2:
             # Generate an emergency vehicle with random starting position/direction & add it to the list
             x, y, direction, is_code3 = generate_emergency_vehicle()
             self.vehicles.append(EmergencyVehicle(x, y, direction, self.city, is_code3))
