@@ -172,6 +172,87 @@ class Vehicle:
     
 
 
+class EmergencyVehicle(Vehicle):
+    def __init__(self, x, y, direction, city, color=(255,255,255)):
+        super().__init__(x, y, direction, city, color)      # initialize the vehicle with the same attributes
+        self.speed = VEHICLE_BASE_SPEED
+        self.code3 = False       # whether the vehicle is in code 3 mode (lights and sirens)
+
+    def check_ahead(self, relevant_light):
+        """
+        Check if the vehicle should stop based on the traffic light ahead and the next tile.
+        ** Emergency vehicles will ignore traffic lights if running code 3. **
+
+        Args:
+            - relevant_light (TrafficLight): The traffic light relevant to the vehicle's direction.
+
+        Returns:
+            - bool: Whether the vehicle should stop.
+        """
+        if self.code3:
+            return False
+        else:
+            return super().check_ahead(relevant_light)
+
+    def activate_code3(self):
+        """
+        Activate code 3 mode for the emergency vehicle.
+        ** Code 3 mode allows the vehicle to ignore traffic lights. **
+
+        Modifies:
+            - `self.code3`: Whether the vehicle is in code 3 mode.
+
+        Returns:
+            None
+        """
+        self.code3 = True
+
+    def deactivate_code3(self):
+        """
+        Deactivate code 3 mode for the emergency vehicle.
+
+        Modifies:
+            - `self.code3`: Whether the vehicle is in code 3 mode.
+
+        Returns:
+            None
+        """
+        self.code3 = False
+
+    def flash_lights(self):
+        """This function makes the color of the emergency vehicle cycle between red, white, and blue"""
+        if self.color == (255,0,0):
+            self.color = (255,255,255)
+        elif self.color == (255,255,255):
+            self.color = (0,0,255)
+        else:
+            self.color = (255,0,0)
+
+
+
+def generate_emergency_vehicle():
+    """
+    Generate an emergency vehicle with a random starting position, direction
+
+    Returns:
+        - tuple: The x-coordinate, y-coordinate, direction, and color of the emergency vehicle.
+    """
+    # Pick a random direction/starting point for the vehicle
+    direction = random.choice(['N', 'S', 'E', 'W'])
+    if direction == 'N':
+        x, y = 12, 23
+    elif direction == 'S':
+        x, y = 11, 0
+    elif direction == 'E':
+        x, y = 0, 12
+    else:
+        x, y = 23, 11
+
+    is_code3 = random.random() < 0.1       # 10% chance of generating a vehicle in code 3 mode
+
+    return x, y, direction, is_code3
+
+
 def generate_vehicle():
     """
     Generate a vehicle with a random starting position, direction, and color.

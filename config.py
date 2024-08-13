@@ -11,9 +11,10 @@ YELLOW_STRIPE = (235, 189, 52)
 
 # Speeds and Durations
 FREQUENCY_OF_EVENTS = 0.01               # 10% chance of event happening every 5 seconds
+
 VEHICLE_BASE_SPEED = 1                   # tiles per second
-PEDESTRIAN_BASE_SPEED = 0.3             
-EMERGENCY_VEHICLE_BASE_SPEED = 2      
+PEDESTRIAN_BASE_SPEED = 0.3                
+
 GREEN_LIGHT_DURATION = 10                # seconds
 YELLOW_LIGHT_DURATION = 3           
 RED_LIGHT_DURATION = 13                 
