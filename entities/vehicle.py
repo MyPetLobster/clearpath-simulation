@@ -88,11 +88,13 @@ class Vehicle:
 
         # Only reset the old position if the vehicle has fully left that tile
         if (prev_x != current_x or prev_y != current_y) and 0 <= prev_y < GRID_SIZE and 0 <= prev_x < GRID_SIZE:
-            self.grid[prev_y][prev_x] = 'road'
+            if self.grid[prev_y][prev_x] != '4_way_red':
+                self.grid[prev_y][prev_x] = 'road'
 
         # Set grid to occupied for the new position if it's within the grid
         if 1 <= current_y < GRID_SIZE and 1 <= current_x < GRID_SIZE:  # Changed from 0 to 1 to fix negative indexing/'occupied' bug
-            self.grid[current_y][current_x] = 'occupied'
+            if self.grid[current_y][current_x] != '4_way_red':
+                self.grid[current_y][current_x] = 'occupied'
 
         # Check if vehicle has entered or exited the intersection
         if self.direction in ['N', 'S'] and 10 <= self.y <= 13:
@@ -149,7 +151,7 @@ class Vehicle:
         # Ensure next_x and next_y are within bounds before accessing the grid
         if 0 <= next_y < GRID_SIZE and 0 <= next_x < GRID_SIZE:
             # If the next tile is occupied, stop the vehicle
-            if self.grid[next_y][next_x] == 'occupied':
+            if self.grid[next_y][next_x] == 'occupied' or self.grid[next_y][next_x] == '4_way_red':
                 return True
             
         # If we've reached this point, there's no reason to stop
@@ -269,7 +271,9 @@ class Vehicle:
 
         # Update position and mark the grid as occupied
         self.x, self.y = next_x, next_y
-        self.grid[int(self.y)][int(self.x)] = 'occupied'
+
+        if self.grid[int(self.y)][int(self.x)] != '4_way_red':
+            self.grid[int(self.y)][int(self.x)] = 'occupied'
 
         # Reset the pulled over status
         self.pulled_over = False

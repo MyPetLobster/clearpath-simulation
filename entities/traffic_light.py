@@ -75,7 +75,7 @@ class TrafficLight:
                 color = RED_LIGHT
             else:
                 color = OFF_LIGHT
-                
+
             # Alternate between red and off every 0.5 seconds
             if self.blinking_red_timer % 30 < 15:
                 if color == RED_LIGHT:
@@ -117,6 +117,7 @@ class IntersectionManager:
         self.traffic_lights = self.ew_traffic_lights + self.ns_traffic_lights
         self.ew_crosswalks = ew_crosswalks
         self.ns_crosswalks = ns_crosswalks
+        self.four_way_active = False
 
     def update_intersection(self):
         """
@@ -128,6 +129,9 @@ class IntersectionManager:
         Returns:
             None
         """
+        if self.four_way_active:
+            return
+        
         for light in self.traffic_lights:
             if light.state == 'RED' or (light.state == 'YELLOW' and light.get_yellow_duration() > 0.8):
                 self.mark_crosswalks_occupied(light)
@@ -207,4 +211,34 @@ class IntersectionManager:
             light.state = '4_WAY_RED'
             light.timer = 0
             light.yellow_timer = 0
+
+        crosswalks = self.ew_crosswalks + self.ns_crosswalks
+        for tile in crosswalks:
+            # Mark all above crosswalk tiles as '4_way_stop'
+            self.grid[tile[0]][tile[1]] = '4_way_red'
+
+        self.four_way_active = True
         self.update_intersection()
+
+        return True
+
+    def determine_first_car(vehicles):
+        """
+        Determine the first car in the intersection
+
+        Args:
+            - vehicles (list): List of vehicle objects
+
+        Returns:
+            - Vehicle: The first vehicle in the intersection
+        """
+        first_car = None
+        vehicles_at_light = {}
+        for vehicle in vehicles:
+            vehicles_at_light[vehicle.four_way_timer] = vehicle
+
+        if vehicles_at_light:
+            # Find out which car has been waiting the longest by sorting the dictionary keys (timer values)
+            first_car = vehicles_at_light[max(vehicles_at_light.keys())]
+
+        return first_car
