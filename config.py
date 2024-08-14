@@ -12,8 +12,7 @@ YELLOW_STRIPE = (235, 189, 52)
 # Speeds and Durations
 FREQUENCY_OF_EVENTS = 0.02               
 
-VEHICLE_BASE_SPEED = 0.2                   # tiles per second
-PEDESTRIAN_BASE_SPEED = 0.05                
+VEHICLE_BASE_SPEED = 0.2                   # tiles per second            
 
 GREEN_LIGHT_DURATION = 10                # seconds
 YELLOW_LIGHT_DURATION = 3           
