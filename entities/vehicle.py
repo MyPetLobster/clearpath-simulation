@@ -65,8 +65,11 @@ class Vehicle:
 
         # Check ahead to decide if the vehicle should stop
         if self.check_ahead(relevant_light):
-            self.stopped = True
-            return
+            if self.in_intersection:
+                pass
+            else: 
+                self.stopped = True
+                return
         else:
             self.stopped = False      
 
@@ -114,7 +117,8 @@ class Vehicle:
         Returns:
             - bool: Whether the vehicle should stop.
         """
-        # Check if the next tile is occupied
+        # TODO - Figure out how to just use a loop here DRY
+        # Check if the tile 2 units ahead is occupied
         next_x, next_y = int(self.x), int(self.y)
         if self.direction == 'N':
             next_y = int(self.y - 2)
@@ -130,6 +134,23 @@ class Vehicle:
             # If the next tile is occupied, stop the vehicle
             if self.grid[next_y][next_x] == 'occupied':
                 return True
+            
+        # Check if the tile 1 unit ahead is occupied
+        if self.direction == 'N':
+            next_y = int(self.y - 1)
+        elif self.direction == 'S':
+            next_y = int(self.y + 1)
+        elif self.direction == 'E':
+            next_x = int(self.x + 1)
+        elif self.direction == 'W':
+            next_x = int(self.x - 1)
+
+        # Ensure next_x and next_y are within bounds before accessing the grid
+        if 0 <= next_y < GRID_SIZE and 0 <= next_x < GRID_SIZE:
+            # If the next tile is occupied, stop the vehicle
+            if self.grid[next_y][next_x] == 'occupied':
+                return True
+            
 
         # Check for yellow light
         if relevant_light and relevant_light.state == 'YELLOW':
@@ -160,6 +181,7 @@ class Vehicle:
                 if isinstance(vehicle, EmergencyVehicle) and vehicle.code3:
                     if self.is_emergency_vehicle_in_range(vehicle):
                         self.pull_over()
+                        self.stopped = True
                         return
                     
     def is_emergency_vehicle_in_range(self, vehicle):
@@ -220,18 +242,31 @@ class Vehicle:
                 if self.is_emergency_vehicle_in_range(vehicle):
                     return  # Stay pulled over if the emergency vehicle is still nearby
 
-        # Merge back to the road
+        # Check the next space before merging back
+        next_x, next_y = self.x, self.y
         if self.direction == 'N':
-            self.x -= 1  # Move back to the left
+            if self.grid[int(self.y - 2)][int(self.x)] == 'occupied' or self.grid[int(self.y - 1)][int(self.x)] == 'occupied' or self.grid[int(self.y)][int(self.x)] == 'occupied':
+                return
+            next_x -= 1  # Move back to the left
         elif self.direction == 'S':
-            self.x += 1  # Move back to the right
+            if self.grid[int(self.y + 2)][int(self.x)] == 'occupied' or self.grid[int(self.y + 1)][int(self.x)] == 'occupied' or self.grid[int(self.y)][int(self.x)] == 'occupied':
+                return
+            next_x += 1  # Move back to the right
         elif self.direction == 'E':
-            self.y -= 1  # Move back down
+            if self.grid[int(self.y)][int(self.x + 2)] == 'occupied' or self.grid[int(self.y)][int(self.x + 1)] == 'occupied' or self.grid[int(self.y)][int(self.x)] == 'occupied':
+                return
+            next_y -= 1  # Move back down
         elif self.direction == 'W':
-            self.y += 1  # Move back up
+            if self.grid[int(self.y)][int(self.x - 2)] == 'occupied' or self.grid[int(self.y)][int(self.x - 1)] == 'occupied' or self.grid[int(self.y)][int(self.x)] == 'occupied':
+                return
+            next_y += 1  # Move back up
 
+        self.x, self.y = next_x, next_y     # Merge if the space is clear
+        self.grid[int(self.y)][int(self.x)] = 'occupied'  # Mark the grid as occupied
+
+        # Reset the pulled over status
         self.pulled_over = False
-        self.stopped = False  # Allow the vehicle to move again
+        self.stopped = False
 
 
     def get_relevant_light(self, traffic_lights):
