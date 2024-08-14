@@ -203,6 +203,9 @@ class Vehicle:
         """
         Move the vehicle to the right side of the road if there's an emergency vehicle approaching.
         """
+        if self.in_intersection: 
+            return
+        
         # Ensure the vehicle stops
         self.stopped = True
         self.pulled_over = True
