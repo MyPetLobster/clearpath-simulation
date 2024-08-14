@@ -95,6 +95,13 @@ class Simulation:
         Returns:
             None
         """
+        # Update vehicles
+        vehicles_to_remove = []
+        for vehicle in self.vehicles:
+            vehicle.move()
+            if vehicle.is_off_screen():
+                vehicles_to_remove.append(vehicle)
+                
         # Update traffic lights
         for light in self.traffic_lights:
             light.update()
@@ -111,13 +118,6 @@ class Simulation:
                 pass
             else:
                 vehicle.check_behind(self.vehicles)
-
-        # Update vehicles
-        vehicles_to_remove = []
-        for vehicle in self.vehicles:
-            vehicle.move()
-            if vehicle.is_off_screen():
-                vehicles_to_remove.append(vehicle)
 
         # Remove off-screen vehicles
         for vehicle in vehicles_to_remove:
