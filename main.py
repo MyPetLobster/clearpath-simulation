@@ -5,7 +5,7 @@ import sys
 from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS
 from city import CityGrid
 from entities.vehicle import Vehicle, EmergencyVehicle, generate_vehicle, generate_emergency_vehicle
-from entities.traffic_light import TrafficLight, IntersectionManager, get_light_color
+from entities.traffic_light import TrafficLight, IntersectionManager
 from entities.scoreboard import Scoreboard
 from helpers import draw_split_tile, collision_counter
 
@@ -101,7 +101,7 @@ class Simulation:
             vehicle.move()
             if vehicle.is_off_screen():
                 vehicles_to_remove.append(vehicle)
-                
+
         # Update traffic lights
         for light in self.traffic_lights:
             light.update()
@@ -159,8 +159,8 @@ class Simulation:
         self.city.draw(self.win)
         # Draw the split tiles that connect two lights
         for (x, y) in self.split_tiles:
-            north_south_color = get_light_color(self.traffic_lights, 9, 10) 
-            east_west_color = get_light_color(self.traffic_lights, 10,9)
+            north_south_color = self.intersection_manager.get_light_color(self.traffic_lights, 9, 10) 
+            east_west_color = self.intersection_manager.get_light_color(self.traffic_lights, 10,9)
 
             # Draw, color the split traffic light tiles
             draw_split_tile(self.win, north_south_color, east_west_color, x, y)

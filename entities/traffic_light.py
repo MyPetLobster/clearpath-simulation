@@ -161,25 +161,24 @@ class IntersectionManager:
         else:
             return self.ns_crosswalks
 
+    def get_light_color(self,traffic_lights, x, y):
+        """
+        Get the color of the light at a given position
 
-def get_light_color(traffic_lights, x, y):
-    """
-    Get the color of the light at a given position
+        Args:
+            - traffic_lights (list): List of traffic lights
+            - x (int): x-coordinate of the light
+            - y (int): y-coordinate of the light
 
-    Args:
-        - traffic_lights (list): List of traffic lights
-        - x (int): x-coordinate of the light
-        - y (int): y-coordinate of the light
-
-    Returns:
-        - color (tuple): RGB color of the light
-    """
-    for light in traffic_lights:
-        if light.x == x and light.y == y:
-            if light.state == 'RED':
-                return RED_LIGHT
-            elif light.state == 'YELLOW':
-                return YELLOW_LIGHT
-            elif light.state == 'GREEN':
-                return GREEN_LIGHT
-    return RED_LIGHT       # Fallback color, should never reach here
+        Returns:
+            - color (tuple): RGB color of the light
+        """
+        for light in traffic_lights:
+            if light.x == x and light.y == y:
+                if light.state == 'RED':
+                    return RED_LIGHT
+                elif light.state == 'YELLOW':
+                    return YELLOW_LIGHT
+                elif light.state == 'GREEN':
+                    return GREEN_LIGHT
+        return RED_LIGHT       # Fallback color, should never reach here
