@@ -6,7 +6,9 @@ from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS
 from city import CityGrid
 from entities.vehicle import Vehicle, EmergencyVehicle, generate_vehicle, generate_emergency_vehicle
 from entities.traffic_light import TrafficLight, IntersectionManager, get_light_color
+from entities.scoreboard import Scoreboard
 from helpers import draw_split_tile, collision_counter
+
 
 
 
@@ -55,6 +57,7 @@ class Simulation:
         self.intersection_manager = IntersectionManager(self.city.grid, self.ew_traffic_lights, self.ns_traffic_lights, self.ew_crosswalks, self.ns_crosswalks)
         self.direction_count = {"N": 0, "S": 0, "E": 0, "W": 0}
         self.collision_count = 0
+        self.scoreboard = Scoreboard()
 
         # Add traffic lights to city grid data structure
         for light in self.traffic_lights:
@@ -139,7 +142,7 @@ class Simulation:
         if len(self.vehicles) > 1:
             self.collision_count = collision_counter(self.vehicles, self.collision_count)
 
-        print(f"Collision count: {self.collision_count}")
+        self.scoreboard.update_collision_count(self.collision_count)
 
         # Update the grid to reflect the current state of the intersection
         self.intersection_manager.update_intersection()
@@ -165,6 +168,8 @@ class Simulation:
             light.draw(self.win)
         for vehicle in self.vehicles:
             vehicle.draw(self.win)
+
+        self.scoreboard.draw(self.win)
 
     
 
