@@ -114,6 +114,10 @@ class Vehicle:
         Returns:
             - bool: Whether the vehicle should stop.
         """
+        # Check if in an intersection, if so continue through
+        if self.in_intersection:
+            return False
+        
         # TODO - Figure out how to just use a loop here DRY
         # Check if the tile 2 units ahead is occupied
         next_x, next_y = int(self.x), int(self.y)
@@ -148,10 +152,6 @@ class Vehicle:
             if self.grid[next_y][next_x] == 'occupied':
                 return True
             
-        # Check if in an intersection, if so continue through
-        if self.in_intersection:
-            return False
-        
         # If we've reached this point, there's no reason to stop
         return False
     

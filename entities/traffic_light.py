@@ -113,7 +113,7 @@ class IntersectionManager:
             None
         """
         for light in self.traffic_lights:
-            if light.state == 'RED' or (light.state == 'YELLOW' and light.get_yellow_duration() > 0.5):
+            if light.state == 'RED' or (light.state == 'YELLOW' and light.get_yellow_duration() > 0.8):
                 self.mark_crosswalks_occupied(light)
             else:
                 self.mark_crosswalks_clear(light)

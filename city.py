@@ -82,7 +82,7 @@ class CityGrid:
                 pg.draw.rect(win, color, (j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
                 # Draw yellow line between road tiles
-                if self.grid[i][j] == 'road':
+                if self.grid[i][j] == 'road' or (self.grid[i][j] == 'occupied' and (i, j) not in self.crosswalks):
                     # Exclude the intersection tiles
                     if (i, j) not in [(11, 11), (11, 12), (12, 11), (12, 12)]:
                         # Horizontal roads (between rows 11 and 12)
