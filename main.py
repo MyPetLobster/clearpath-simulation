@@ -79,6 +79,8 @@ class Simulation:
                     running = False
                     pg.quit()
                     sys.exit()
+                if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+                    self.intersection_manager.activate_four_way_red()
 
             self.update()
             self.draw()

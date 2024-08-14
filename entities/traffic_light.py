@@ -1,6 +1,6 @@
 import pygame as pg 
 
-from config import RED_LIGHT, YELLOW_LIGHT, GREEN_LIGHT, RED_LIGHT_DURATION, YELLOW_LIGHT_DURATION, GREEN_LIGHT_DURATION, TILE_SIZE
+from config import RED_LIGHT, YELLOW_LIGHT, GREEN_LIGHT, OFF_LIGHT, RED_LIGHT_DURATION, YELLOW_LIGHT_DURATION, GREEN_LIGHT_DURATION, TILE_SIZE
 
 
 class TrafficLight:
@@ -25,6 +25,7 @@ class TrafficLight:
         self.state = state
         self.timer = 0
         self.yellow_timer = 0
+        self.blinking_red_timer = 0
 
     def update(self):
         """
@@ -52,6 +53,9 @@ class TrafficLight:
         elif self.state == 'RED' and self.timer >= RED_LIGHT_DURATION * 60:
             self.state = 'GREEN'
             self.timer = 0
+        elif self.state == '4_WAY_RED':
+            self.blinking_red_timer += 1
+            self.timer = 0
 
     def draw(self, win):
         """
@@ -64,9 +68,21 @@ class TrafficLight:
             color = RED_LIGHT
         elif self.state == 'YELLOW':
             color = YELLOW_LIGHT
-        else:
+        elif self.state == 'GREEN':
             color = GREEN_LIGHT
-
+        elif self.state == '4_WAY_RED':
+            if (self.x, self.y) in [(9, 10), (9, 13), (14, 10), (14, 13)]:
+                color = RED_LIGHT
+            else:
+                color = OFF_LIGHT
+                
+            # Alternate between red and off every 0.5 seconds
+            if self.blinking_red_timer % 30 < 15:
+                if color == RED_LIGHT:
+                    color = OFF_LIGHT
+                else:
+                    color = RED_LIGHT
+            
         pg.draw.rect(win, color, (self.y * TILE_SIZE, self.x * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
     def get_yellow_duration(self):
@@ -182,3 +198,13 @@ class IntersectionManager:
                 elif light.state == 'GREEN':
                     return GREEN_LIGHT
         return RED_LIGHT       # Fallback color, should never reach here
+    
+    def activate_four_way_red(self):
+        """
+        Turn all traffic lights to blinking red.
+        """
+        for light in self.traffic_lights:
+            light.state = '4_WAY_RED'
+            light.timer = 0
+            light.yellow_timer = 0
+        self.update_intersection()
