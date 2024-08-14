@@ -57,7 +57,9 @@ class Simulation:
         self.intersection_manager = IntersectionManager(self.city.grid, self.ew_traffic_lights, self.ns_traffic_lights, self.ew_crosswalks, self.ns_crosswalks)
         self.direction_count = {"N": 0, "S": 0, "E": 0, "W": 0}
         self.collision_count = 0
+        self.collision_pairs = {}
         self.scoreboard = Scoreboard()
+
 
         # Add traffic lights to city grid data structure
         for light in self.traffic_lights:
@@ -140,7 +142,7 @@ class Simulation:
 
         # Check for collisions
         if len(self.vehicles) > 1:
-            self.collision_count = collision_counter(self.vehicles, self.collision_count)
+            self.collision_count = collision_counter(self.vehicles, self.collision_count, self.collision_pairs)
 
         self.scoreboard.update_collision_count(self.collision_count)
 

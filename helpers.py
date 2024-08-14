@@ -39,24 +39,34 @@ def draw_split_tile(window, ns_color, ew_color, x, y):
         pg.draw.polygon(window, ns_color, [top_right, bottom_left, bottom_right])
 
 
-def collision_counter(vehicles, collision_count):
+def collision_counter(vehicles, collision_count, collision_pairs):
     """
     Count the total number of collisions for all vehicles in the simulation.
 
+    Args:
+        vehicles (list): List of vehicle objects.
+        collision_count (int): The current collision count.
+        collision_pairs (dict): A dictionary to track counted collisions.
+
+    Returns:
+        int: Updated collision count.
     """
-    checked_pairs = set()
     intersection_tiles = [(11, 11), (11,12), (12,11), (12,12)]
 
     for i, vehicle in enumerate(vehicles):
         for j, other_vehicle in enumerate(vehicles):
             if i != j:     # Ensure we don't check same vehicle against itself
-                # Check for collision
-                if int(vehicle.x) == int(other_vehicle.x) and int(vehicle.y) == int(other_vehicle.y):
+                if (int(vehicle.x), int(vehicle.y)) in intersection_tiles:
                     pair = tuple(sorted([i, j]))  # Sort to avoid (i, j) and (j, i) being treated as different
 
-                    # If the pair hasn't already been checked, increment the collision count
-                    if pair not in checked_pairs and (int(vehicle.x), int(vehicle.y)) in intersection_tiles:
-                        collision_count += 1
-                        checked_pairs.add(pair)
-    
+                    # Check if vehicles are at the same position and this collision hasn't been counted yet
+                    if int(vehicle.x) == int(other_vehicle.x) and int(vehicle.y) == int(other_vehicle.y):
+                        if pair not in collision_pairs:
+                            collision_count += 1
+                            collision_pairs[pair] = True
+                    else:
+                        # If vehicles are no longer colliding, remove the pair from the dictionary
+                        if pair in collision_pairs:
+                            del collision_pairs[pair]
+
     return collision_count
