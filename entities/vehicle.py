@@ -236,27 +236,38 @@ class Vehicle:
                 if self.is_emergency_vehicle_in_range(vehicle):
                     return  # Stay pulled over if the emergency vehicle is still nearby
 
-        # Check the next space before merging back
+        # Define next_x and next_y based on current position
         next_x, next_y = self.x, self.y
+
+        # Check the next space before merging back, with boundary checks
         if self.direction == 'N':
-            if self.grid[int(self.y - 2)][int(self.x)] == 'occupied' or self.grid[int(self.y - 1)][int(self.x)] == 'occupied' or self.grid[int(self.y)][int(self.x)] == 'occupied':
+            if int(self.y) - 2 >= 0 and self.grid[int(self.y - 2)][int(self.x)] == 'occupied':
+                return
+            if int(self.y) - 1 >= 0 and self.grid[int(self.y - 1)][int(self.x)] == 'occupied':
                 return
             next_x -= 1  # Move back to the left
         elif self.direction == 'S':
-            if self.grid[int(self.y + 2)][int(self.x)] == 'occupied' or self.grid[int(self.y + 1)][int(self.x)] == 'occupied' or self.grid[int(self.y)][int(self.x)] == 'occupied':
+            if int(self.y) + 2 < GRID_SIZE and self.grid[int(self.y + 2)][int(self.x)] == 'occupied':
+                return
+            if int(self.y) + 1 < GRID_SIZE and self.grid[int(self.y + 1)][int(self.x)] == 'occupied':
                 return
             next_x += 1  # Move back to the right
         elif self.direction == 'E':
-            if self.grid[int(self.y)][int(self.x + 2)] == 'occupied' or self.grid[int(self.y)][int(self.x + 1)] == 'occupied' or self.grid[int(self.y)][int(self.x)] == 'occupied':
+            if int(self.x) + 2 < GRID_SIZE and self.grid[int(self.y)][int(self.x + 2)] == 'occupied':
+                return
+            if int(self.x) + 1 < GRID_SIZE and self.grid[int(self.y)][int(self.x + 1)] == 'occupied':
                 return
             next_y -= 1  # Move back down
         elif self.direction == 'W':
-            if self.grid[int(self.y)][int(self.x - 2)] == 'occupied' or self.grid[int(self.y)][int(self.x - 1)] == 'occupied' or self.grid[int(self.y)][int(self.x)] == 'occupied':
+            if int(self.x) - 2 >= 0 and self.grid[int(self.y)][int(self.x - 2)] == 'occupied':
+                return
+            if int(self.x) - 1 >= 0 and self.grid[int(self.y)][int(self.x - 1)] == 'occupied':
                 return
             next_y += 1  # Move back up
 
-        self.x, self.y = next_x, next_y     # Merge if the space is clear
-        self.grid[int(self.y)][int(self.x)] = 'occupied'  # Mark the grid as occupied
+        # Update position and mark the grid as occupied
+        self.x, self.y = next_x, next_y
+        self.grid[int(self.y)][int(self.x)] = 'occupied'
 
         # Reset the pulled over status
         self.pulled_over = False
@@ -357,7 +368,7 @@ def generate_emergency_vehicle():
     else:
         x, y = 23, 11
 
-    is_code3 = random.random() < 0.5       # 50% chance of generating a vehicle in code 3 mode
+    is_code3 = random.random() < 0.8       # 50% chance of generating a vehicle in code 3 mode
 
     return x, y, direction, is_code3
 

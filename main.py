@@ -6,7 +6,7 @@ from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS
 from city import CityGrid
 from entities.vehicle import Vehicle, EmergencyVehicle, generate_vehicle, generate_emergency_vehicle
 from entities.traffic_light import TrafficLight, IntersectionManager, get_light_color
-from helpers import draw_split_tile
+from helpers import draw_split_tile, collision_counter
 
 
 
@@ -54,6 +54,7 @@ class Simulation:
         self.vehicles = []
         self.intersection_manager = IntersectionManager(self.city.grid, self.ew_traffic_lights, self.ns_traffic_lights, self.ew_crosswalks, self.ns_crosswalks)
         self.direction_count = {"N": 0, "S": 0, "E": 0, "W": 0}
+        self.collision_count = 0
 
         # Add traffic lights to city grid data structure
         for light in self.traffic_lights:
@@ -127,12 +128,18 @@ class Simulation:
                 self.vehicles.append(Vehicle(x, y, direction, self.city, color))
 
         # Add new emergency vehicles
-        if random.random() < FREQUENCY_OF_EVENTS / 4:
+        if random.random() < FREQUENCY_OF_EVENTS / 2:
             # Generate an emergency vehicle with random starting position/direction & add it to the list
             x, y, direction, is_code3 = generate_emergency_vehicle()
-            if self.direction_count[direction] < 4:
+            if self.direction_count[direction] < 6:
                 self.direction_count[direction] += 1
                 self.vehicles.append(EmergencyVehicle(x, y, direction, self.city, is_code3))
+
+        # Check for collisions
+        if len(self.vehicles) > 1:
+            self.collision_count = collision_counter(self.vehicles, self.collision_count)
+
+        print(f"Collision count: {self.collision_count}")
 
         # Update the grid to reflect the current state of the intersection
         self.intersection_manager.update_intersection()
