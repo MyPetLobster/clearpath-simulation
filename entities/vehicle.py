@@ -65,11 +65,8 @@ class Vehicle:
 
         # Check ahead to decide if the vehicle should stop
         if self.check_ahead(relevant_light):
-            if self.in_intersection:
-                pass
-            else: 
-                self.stopped = True
-                return
+            self.stopped = True
+            return
         else:
             self.stopped = False      
 
@@ -151,13 +148,10 @@ class Vehicle:
             if self.grid[next_y][next_x] == 'occupied':
                 return True
             
-
-        # Check for yellow light
-        if relevant_light and relevant_light.state == 'YELLOW':
-            yellow_duration = relevant_light.get_yellow_duration()
-            if yellow_duration > 1.5 and not self.in_intersection:
-                return True  # Stop for yellow light if it's been on for more than 1.5 seconds and not in intersection
-
+        # Check if in an intersection, if so continue through
+        if self.in_intersection:
+            return False
+        
         # If we've reached this point, there's no reason to stop
         return False
     

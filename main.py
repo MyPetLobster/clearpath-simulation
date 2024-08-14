@@ -53,6 +53,7 @@ class Simulation:
         self.split_tiles = [(10,10), (10,13), (13,10), (13,13)]
         self.vehicles = []
         self.intersection_manager = IntersectionManager(self.city.grid, self.ew_traffic_lights, self.ns_traffic_lights, self.ew_crosswalks, self.ns_crosswalks)
+        self.direction_count = {"N": 0, "S": 0, "E": 0, "W": 0}
 
         # Add traffic lights to city grid data structure
         for light in self.traffic_lights:
@@ -115,18 +116,23 @@ class Simulation:
         # Remove off-screen vehicles
         for vehicle in vehicles_to_remove:
             self.vehicles.remove(vehicle)
+            self.direction_count[vehicle.direction] -= 1
 
         # Add new vehicles
         if random.random() < FREQUENCY_OF_EVENTS:
             # Generate a vehicle with random starting position/direction & add it to the list
             x, y, direction, color = generate_vehicle()
-            self.vehicles.append(Vehicle(x, y, direction, self.city, color))
+            if self.direction_count[direction] < 4:
+                self.direction_count[direction] += 1
+                self.vehicles.append(Vehicle(x, y, direction, self.city, color))
 
         # Add new emergency vehicles
-        if random.random() < FREQUENCY_OF_EVENTS / 2:
+        if random.random() < FREQUENCY_OF_EVENTS / 4:
             # Generate an emergency vehicle with random starting position/direction & add it to the list
             x, y, direction, is_code3 = generate_emergency_vehicle()
-            self.vehicles.append(EmergencyVehicle(x, y, direction, self.city, is_code3))
+            if self.direction_count[direction] < 4:
+                self.direction_count[direction] += 1
+                self.vehicles.append(EmergencyVehicle(x, y, direction, self.city, is_code3))
 
         # Update the grid to reflect the current state of the intersection
         self.intersection_manager.update_intersection()
