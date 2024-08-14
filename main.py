@@ -128,10 +128,28 @@ class Simulation:
         if random.random() < FREQUENCY_OF_EVENTS:
             # Generate a vehicle with random starting position/direction & add it to the list
             x, y, direction, color = generate_vehicle()
-            if self.direction_count[direction] < 4:
-                self.direction_count[direction] += 1
-                self.vehicles.append(Vehicle(x, y, direction, self.city, color))
+            
+            # TODO - Condense the following code 
+            # Check if the direction has green light
+            if direction == "N" or direction == "S":
+                if self.direction_count[direction] < 12 and self.intersection_manager.get_light_color(self.traffic_lights, 9, 10) == (0, 255, 0):
+                    self.direction_count[direction] += 1
+                    self.vehicles.append(Vehicle(x, y, direction, self.city, color))
+                else: 
+                    if self.direction_count[direction] < 4:
+                        self.direction_count[direction] += 1
+                        self.vehicles.append(Vehicle(x, y, direction, self.city, color))
 
+            elif direction == "E" or direction == "W":
+                if self.direction_count[direction] < 12 and self.intersection_manager.get_light_color(self.traffic_lights, 10, 9) == (0, 255, 0):
+                    self.direction_count[direction] += 1
+                    self.vehicles.append(Vehicle(x, y, direction, self.city, color))
+                else: 
+                    if self.direction_count[direction] < 4:
+                        self.direction_count[direction] += 1
+                        self.vehicles.append(Vehicle(x, y, direction, self.city, color))
+
+            
         # Add new emergency vehicles
         if random.random() < FREQUENCY_OF_EVENTS / 4:
             # Generate an emergency vehicle with random starting position/direction & add it to the list

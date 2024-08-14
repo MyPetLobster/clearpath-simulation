@@ -10,7 +10,7 @@ YELLOW_STRIPE = (235, 189, 52)
 
 
 # Speeds and Durations
-FREQUENCY_OF_EVENTS = 0.02               
+FREQUENCY_OF_EVENTS = 0.03               
 
 VEHICLE_BASE_SPEED = 0.2                   # tiles per second            
 
