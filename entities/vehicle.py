@@ -227,7 +227,6 @@ class Vehicle:
             if self.y == 11 or self.y == 12:
                 self.x -= 2 # Move left
         
-        
 
     def merge(self, vehicles):
         """
@@ -371,7 +370,8 @@ def generate_emergency_vehicle():
     else:
         x, y = 23, 11
 
-    is_code3 = random.random() < 0.8       # 50% chance of generating a vehicle in code 3 mode
+    # is_code3 = random.random() < 0.8       # 50% chance of generating a vehicle in code 3 mode
+    is_code3 = True
 
     return x, y, direction, is_code3
 
