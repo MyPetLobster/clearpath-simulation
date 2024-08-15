@@ -37,13 +37,16 @@ class Scoreboard:
         win.blit(collision_text, (WIDTH - 8 * TILE_SIZE + 10, HEIGHT - 5.5 * TILE_SIZE))
 
         instructions_text = self.font.render("Press 'c' to toggle ClearPath", True, (255, 255, 255))
-        win.blit(instructions_text, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 3.5 * TILE_SIZE))
+        win.blit(instructions_text, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 4 * TILE_SIZE))
         instructions_text_2 = self.font.render("Press 'r' to reset sim.", True, (255, 255, 255))
-        win.blit(instructions_text_2, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 3 * TILE_SIZE))
-        instructions_text_2 = self.font.render("Press 'esc' to quit.", True, (255, 255, 255))
-        win.blit(instructions_text_2, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 2.5 * TILE_SIZE))
-        instructions_text_3 = self.font.render("Press 'a' to run 10 min analysis", True, (255, 255, 255))
-        win.blit(instructions_text_3, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 2 * TILE_SIZE))
+        win.blit(instructions_text_2, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 3.5 * TILE_SIZE))
+        instructions_text_3 = self.font.render("Press 'p' to pause sim.", True, (255, 255, 255))
+        win.blit(instructions_text_3, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 3 * TILE_SIZE))
+        instructions_text_4 = self.font.render("Press 'esc' to quit.", True, (255, 255, 255))
+        win.blit(instructions_text_4, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 2.5 * TILE_SIZE))
+        instructions_text_5 = self.font.render("Press 'a' to run 10 min analysis", True, (255, 255, 255))
+        win.blit(instructions_text_5, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 2 * TILE_SIZE))
+
 
 
 

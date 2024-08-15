@@ -91,10 +91,31 @@ class Simulation:
                 # Reset the simulation
                 if event.type == pg.KEYDOWN and event.key == pg.K_r:
                     self.__init__(self.win, self.clock)
-                    self.collision_count = 0
+                # Pause the simulation
+                if event.type == pg.KEYDOWN and event.key == pg.K_p:
+                    paused = True
+                    while paused:
+                        for event in pg.event.get():
+                            if event.type == pg.KEYDOWN and event.key == pg.K_p:
+                                paused = False
+                            if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE or event.type == pg.QUIT:
+                                running = False
+                                pg.quit()
+                                sys.exit()
+                            if event.type == pg.KEYDOWN and event.key == pg.K_c:
+                                if self.intersection_manager.four_way_active:
+                                    self.intersection_manager.deactivate_four_way_red()
+                                    self.scoreboard.clearpath_enabled = False
+                                else:
+                                    self.intersection_manager.activate_four_way_red()
+                                    self.scoreboard.clearpath_enabled = True
+                            # Reset the simulation
+                            if event.type == pg.KEYDOWN and event.key == pg.K_r:
+                                self.__init__(self.win, self.clock)
                 # Run 10 minute analysis
                 if event.type == pg.KEYDOWN and event.key == pg.K_a:
-                    ...
+                    self.__init__(self.win, self.clock)
+
 
             self.update()
             self.draw()
