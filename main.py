@@ -6,7 +6,7 @@ from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS
 from city import CityGrid
 from entities.vehicle import Vehicle, EmergencyVehicle, generate_vehicle, generate_emergency_vehicle
 from entities.traffic_light import TrafficLight, IntersectionManager
-from entities.scoreboard import Scoreboard
+from entities.scoreboard import Scoreboard, Logo
 from helpers import draw_split_tile, collision_counter
 
 
@@ -60,6 +60,7 @@ class Simulation:
         self.collision_pairs = {}
         self.collision_cooldown = {}
         self.scoreboard = Scoreboard()
+        self.logo = Logo()
 
 
         # Add traffic lights to city grid data structure
@@ -202,6 +203,7 @@ class Simulation:
             vehicle.draw(self.win)
 
         self.scoreboard.draw(self.win)
+        self.logo.draw(self.win)
 
     
 

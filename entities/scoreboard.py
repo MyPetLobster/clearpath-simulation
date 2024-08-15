@@ -36,3 +36,11 @@ class Scoreboard:
         collision_text = self.font.render(f"Collisions: {self.collision_count}", True, (255, 255, 255))
         win.blit(collision_text, (WIDTH - 8 * TILE_SIZE + 10, HEIGHT - 2.5 * TILE_SIZE))
 
+
+class Logo:
+    def __init__(self):
+        self.logo = pg.image.load('assets/clearpath-logo-sign.png')
+        self.logo = pg.transform.scale(self.logo, (8 * TILE_SIZE, 2.5 * TILE_SIZE))
+
+    def draw(self, win):
+        win.blit(self.logo, (1 * TILE_SIZE, 2 * TILE_SIZE))
