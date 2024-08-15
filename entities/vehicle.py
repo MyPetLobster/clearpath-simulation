@@ -38,6 +38,7 @@ class Vehicle:
         self.grid = city.grid
         self.stopped = False
         self.pulled_over = False
+        self.at_red_light = False
         self.in_intersection = False
 
     def move(self):
@@ -135,7 +136,7 @@ class Vehicle:
         # Ensure next_x and next_y are within bounds before accessing the grid
         if 0 <= next_y < GRID_SIZE and 0 <= next_x < GRID_SIZE:
             # If the next tile is occupied, stop the vehicle
-            if self.grid[next_y][next_x] == 'occupied':
+            if self.grid[next_y][next_x] == 'occupied' or self.grid[next_y][next_x] == '4_way_red' or self.grid[next_y][next_x] == 'red_light':
                 return True
             
         # Check if the tile 1 unit ahead is occupied
@@ -151,7 +152,7 @@ class Vehicle:
         # Ensure next_x and next_y are within bounds before accessing the grid
         if 0 <= next_y < GRID_SIZE and 0 <= next_x < GRID_SIZE:
             # If the next tile is occupied, stop the vehicle
-            if self.grid[next_y][next_x] == 'occupied' or self.grid[next_y][next_x] == '4_way_red':
+            if self.grid[next_y][next_x] == 'occupied' or self.grid[next_y][next_x] == '4_way_red' or self.grid[next_y][next_x] == 'red_light':
                 return True
             
         # If we've reached this point, there's no reason to stop
@@ -212,6 +213,10 @@ class Vehicle:
         self.stopped = True
         self.pulled_over = True
 
+        # Save the previous position to keep it marked as occupied
+        prev_x, prev_y = int(self.x), int(self.y)
+
+        # Move the vehicle to the right side of the road
         if self.direction == 'N':
             self.x += 1  # Move right
             if self.x == 11 or self.x == 12:        # Check if vehicle is in intersection
@@ -228,7 +233,11 @@ class Vehicle:
             self.y -= 1  # Move down
             if self.y == 11 or self.y == 12:
                 self.x -= 2 # Move left
-        
+
+        # Mark the old position as occupied
+        if 0 <= prev_y < GRID_SIZE and 0 <= prev_x < GRID_SIZE:
+            if self.grid[prev_y][prev_x] != '4_way_red':
+                self.grid[prev_y][prev_x] = 'occupied'
 
     def merge(self, vehicles):
         """

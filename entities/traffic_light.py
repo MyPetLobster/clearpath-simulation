@@ -150,7 +150,7 @@ class IntersectionManager:
         """
         crosswalks = self.get_crosswalks_for_light(light)
         for tile in crosswalks:
-            self.grid[tile[1]][tile[0]] = 'occupied'
+            self.grid[tile[1]][tile[0]] = 'red_light'
 
     def mark_crosswalks_clear(self, light):
         """
@@ -164,7 +164,7 @@ class IntersectionManager:
         """
         crosswalks = self.get_crosswalks_for_light(light)
         for tile in crosswalks:
-            self.grid[tile[1]][tile[0]] = 'crosswalk'
+            self.grid[tile[1]][tile[0]] = 'green_light'
 
     def get_crosswalks_for_light(self, light):
         """
