@@ -23,6 +23,7 @@ class TrafficLight:
         self.x = x
         self.y = y
         self.state = state
+        self.active_color = RED_LIGHT
         self.timer = 0
         self.yellow_timer = 0
         self.blinking_red_timer = 0
@@ -76,13 +77,15 @@ class TrafficLight:
             else:
                 color = OFF_LIGHT
 
-            # Alternate between red and off every 0.5 seconds
+            # # Alternate between red and off every 0.5 seconds
             if self.blinking_red_timer % 30 < 15:
                 if color == RED_LIGHT:
                     color = OFF_LIGHT
                 else:
                     color = RED_LIGHT
-            
+
+        self.active_color = color
+
         pg.draw.rect(win, color, (self.y * TILE_SIZE, self.x * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
     def get_yellow_duration(self):
@@ -203,6 +206,8 @@ class IntersectionManager:
                     return YELLOW_LIGHT
                 elif light.state == 'GREEN':
                     return GREEN_LIGHT
+                elif light.state == '4_WAY_RED':
+                    return light.active_color
         return RED_LIGHT       # Fallback color, should never reach here
     
     def activate_four_way_red(self):

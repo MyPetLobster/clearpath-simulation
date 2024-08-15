@@ -204,14 +204,10 @@ class Vehicle:
         for vehicle in emergency_vehicles:
             if self.direction == 'N' or self.direction == 'S':
                 if vehicle.direction == 'E' or vehicle.direction == 'W':
-                    print("not safe to proceed")
                     return False
             elif self.direction == 'E' or self.direction == 'W':
                 if vehicle.direction == 'N' or vehicle.direction == 'S':
-                    print("not safe to proceed")
                     return False
-       
-        print("safe to proceed")
         return True
     
     def check_behind(self, vehicles):
