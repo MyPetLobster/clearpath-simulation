@@ -83,8 +83,10 @@ class Simulation:
                 if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                     if self.intersection_manager.four_way_active:
                         self.intersection_manager.deactivate_four_way_red()
+                        self.scoreboard.clearpath_enabled = False
                     else:
                         self.intersection_manager.activate_four_way_red()
+                        self.scoreboard.clearpath_enabled = True
 
             self.update()
             self.draw()
