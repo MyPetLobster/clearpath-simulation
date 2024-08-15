@@ -119,6 +119,7 @@ class IntersectionManager:
         self.ns_crosswalks = ns_crosswalks
         self.four_way_active = False
         self.vehicles_at_intersection = []
+        self.buffer_delay = 30
 
     def update_intersection(self):
         """
@@ -241,8 +242,14 @@ class IntersectionManager:
 
 
     def manage_four_way_stop(self):
+        self.buffer_delay = max(0, self.buffer_delay - 1)
         self.vehicles_at_intersection = [v for v in self.vehicles_at_intersection if v.four_way_state == "waiting"]
         if self.vehicles_at_intersection:
             first_vehicle = max(self.vehicles_at_intersection, key=lambda v: v.four_way_timer)
-            if first_vehicle.four_way_timer >= 120:
-                first_vehicle.four_way_state = "proceeding"
+            if first_vehicle.four_way_timer >= 120 and self.buffer_delay == 0:
+                if first_vehicle.look_both_ways():
+                    first_vehicle.four_way_state = "proceeding"
+                    self.buffer_delay = 90
+                else:
+                    first_vehicle.four_way_state = "waiting"
+        

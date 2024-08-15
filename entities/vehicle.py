@@ -165,12 +165,12 @@ class Vehicle:
         elif self.direction == 'W':
             next_x = int(self.x - 1)
 
-        if self.four_way_timer > 120:
-            self.four_way_state = "proceeding"
-            self.four_way_timer = 0
-            return False
-        if self.four_way_state == "proceeding":
-                    return False
+        # if self.four_way_timer > 120:
+        #     self.four_way_state = "proceeding"
+        #     self.four_way_timer = 0
+        #     return False
+        # if self.four_way_state == "proceeding":
+        #             return False
         # Ensure next_x and next_y are within bounds before accessing the grid
         if 0 <= next_y < GRID_SIZE and 0 <= next_x < GRID_SIZE:
             # If the next tile is occupied, stop the vehicle
@@ -190,6 +190,29 @@ class Vehicle:
             
         # If we've reached this point, there's no reason to stop
         return False
+    
+    def look_both_ways(self):
+        """
+        Checks if vehicle can safely enter intersection at 4-way stop.
+            - Checks 5 tiles in both perpendicular directions for oncoming traffic.
+
+        Returns:
+            - bool: Whether the vehicle can proceed.
+        """
+        emergency_vehicles = self.city.active_emergency_vehicles
+
+        for vehicle in emergency_vehicles:
+            if self.direction == 'N' or self.direction == 'S':
+                if vehicle.direction == 'E' or vehicle.direction == 'W':
+                    print("not safe to proceed")
+                    return False
+            elif self.direction == 'E' or self.direction == 'W':
+                if vehicle.direction == 'N' or vehicle.direction == 'S':
+                    print("not safe to proceed")
+                    return False
+       
+        print("safe to proceed")
+        return True
     
     def check_behind(self, vehicles):
         """

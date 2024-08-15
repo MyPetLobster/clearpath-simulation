@@ -157,7 +157,7 @@ class Simulation:
 
             
         # Add new emergency vehicles
-        if random.random() < FREQUENCY_OF_EVENTS / 6:
+        if random.random() < FREQUENCY_OF_EVENTS / 10:
             # Generate an emergency vehicle with random starting position/direction & add it to the list
             x, y, direction, is_code3 = generate_emergency_vehicle()
             if self.direction_count[direction] < 6:
@@ -169,6 +169,10 @@ class Simulation:
             self.collision_count = collision_counter(self.vehicles, self.collision_count, self.collision_pairs)
 
         self.scoreboard.update_collision_count(self.collision_count)
+
+        # Provide list of emergency vehicles to the city grid (used for 4-way look_both_ways())
+        emergency_vehicles = [vehicle for vehicle in self.vehicles if isinstance(vehicle, EmergencyVehicle)]
+        self.city.active_emergency_vehicles = emergency_vehicles
 
         # Update the grid to reflect the current state of the intersection
         self.intersection_manager.update_intersection()

@@ -24,6 +24,7 @@ class CityGrid:
         self.grid = self.create_grid()
         self.crosswalks = [(11,10), (12,10), (11, 13), (12, 13), (10,11), (10, 12), (13, 11), (13, 12)]
         self.traffic_lights = []
+        self.active_emergency_vehicles = []
     
     def create_grid(self):
         """
