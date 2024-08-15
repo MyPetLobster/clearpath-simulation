@@ -58,6 +58,7 @@ class Simulation:
         self.direction_count = {"N": 0, "S": 0, "E": 0, "W": 0}
         self.collision_count = 0
         self.collision_pairs = {}
+        self.collision_cooldown = {}
         self.scoreboard = Scoreboard()
 
 
@@ -157,16 +158,15 @@ class Simulation:
 
             
         # Add new emergency vehicles
-        if random.random() < FREQUENCY_OF_EVENTS / 10:
+        if random.random() < FREQUENCY_OF_EVENTS / 4:
             # Generate an emergency vehicle with random starting position/direction & add it to the list
             x, y, direction, is_code3 = generate_emergency_vehicle()
-            if self.direction_count[direction] < 6:
-                self.direction_count[direction] += 1
-                self.vehicles.append(EmergencyVehicle(x, y, direction, self.city, is_code3))
+            self.direction_count[direction] += 1
+            self.vehicles.append(EmergencyVehicle(x, y, direction, self.city, is_code3))
 
         # Check for collisions
         if len(self.vehicles) > 1:
-            self.collision_count = collision_counter(self.vehicles, self.collision_count, self.collision_pairs)
+            self.collision_count = collision_counter(self.vehicles, self.collision_count, self.collision_pairs, self.collision_cooldown)
 
         self.scoreboard.update_collision_count(self.collision_count)
 
