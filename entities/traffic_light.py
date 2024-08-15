@@ -118,6 +118,7 @@ class IntersectionManager:
         self.ew_crosswalks = ew_crosswalks
         self.ns_crosswalks = ns_crosswalks
         self.four_way_active = False
+        self.vehicles_at_intersection = []
 
     def update_intersection(self):
         """
@@ -130,13 +131,13 @@ class IntersectionManager:
             None
         """
         if self.four_way_active:
-            return
-        
-        for light in self.traffic_lights:
-            if light.state == 'RED' or (light.state == 'YELLOW' and light.get_yellow_duration() > 0.8):
-                self.mark_crosswalks_occupied(light)
-            else:
-                self.mark_crosswalks_clear(light)
+            self.manage_four_way_stop()
+        else:
+            for light in self.traffic_lights:
+                if light.state == 'RED' or (light.state == 'YELLOW' and light.get_yellow_duration() > 0.8):
+                    self.mark_crosswalks_occupied(light)
+                else:
+                    self.mark_crosswalks_clear(light)
 
     def mark_crosswalks_occupied(self, light):
         """
@@ -219,26 +220,28 @@ class IntersectionManager:
 
         self.four_way_active = True
         self.update_intersection()
-
         return True
-
-    def determine_first_car(vehicles):
+    
+    def deactivate_four_way_red(self):
         """
-        Determine the first car in the intersection
-
-        Args:
-            - vehicles (list): List of vehicle objects
-
-        Returns:
-            - Vehicle: The first vehicle in the intersection
+        Resume normal traffic light operation.
         """
-        first_car = None
-        vehicles_at_light = {}
-        for vehicle in vehicles:
-            vehicles_at_light[vehicle.four_way_timer] = vehicle
+        self.four_way_active = False
+        
+        for light in self.ew_traffic_lights:
+            light.state = 'RED'
+            light.timer = 0
+            light.yellow_timer = 0
+        for light in self.ns_traffic_lights:
+            light.state = 'GREEN'
+            light.timer = 0
+            light.yellow_timer = 0
 
-        if vehicles_at_light:
-            # Find out which car has been waiting the longest by sorting the dictionary keys (timer values)
-            first_car = vehicles_at_light[max(vehicles_at_light.keys())]
+        self.update_intersection()
 
-        return first_car
+
+    def manage_four_way_stop(self):
+        self.vehicles_at_intersection = [v for v in self.vehicles_at_intersection if v.four_way_state == "waiting"]
+        if self.vehicles_at_intersection:
+            first_vehicle = max(self.vehicles_at_intersection, key=lambda v: v.four_way_timer)
+            first_vehicle.four_way_state = "proceeding"

@@ -23,7 +23,6 @@ class Vehicle:
     Methods:
         - move: Move the vehicle in the direction it is traveling
         - check_ahead: Check if the next tile is occupied or if the vehicle should stop
-        - get_relevant_light: Get the relevant traffic light for the vehicle's direction
         - draw: Draw the vehicle on the screen
         - is_off_screen: Check if the vehicle is off the screen
     """
@@ -40,6 +39,9 @@ class Vehicle:
         self.pulled_over = False
         self.at_red_light = False
         self.in_intersection = False
+        self.four_way_timer = 0  
+        self.four_way_state = "approaching"  
+        self.wait_time = 0  
 
     def move(self):
         """
@@ -59,13 +61,28 @@ class Vehicle:
         # Check if the vehicle should pull over for an emergency vehicle
         if self.pulled_over:
             return
-        
-        # Get the relevant traffic light for the vehicle's direction
-        relevant_light = self.get_relevant_light(self.city.traffic_lights)
+
+        # Check if the vehicle should stop at a 4-way stop
+        if self.four_way_state == "waiting":
+            self.wait_time += 1
+            if self.wait_time >= 60:  # Wait for 1 second (60 frames)
+                self.four_way_state = "proceeding"
+                self.wait_time = 0
+            return
+        elif self.four_way_state == "proceeding":
+            if not self.in_intersection:
+                self.four_way_state = "approaching"
+
+        if self.check_ahead():
+            self.stopped = True
+            return
+        else:
+            self.stopped = False
+
         
 
         # Check ahead to decide if the vehicle should stop
-        if self.check_ahead(relevant_light):
+        if self.check_ahead():
             self.stopped = True
             return
         else:
@@ -107,16 +124,18 @@ class Vehicle:
 
 
 
-    def check_ahead(self, relevant_light):
+    def check_ahead(self):
         """
         Check if the vehicle should stop based on the traffic light ahead and the next tile.
         
         Args:
-            - relevant_light (TrafficLight): The traffic light relevant to the vehicle's direction.
+            None
             
         Returns:
             - bool: Whether the vehicle should stop.
         """
+
+        print(f'vehicle.four_way_state = {self.four_way_state}')
         # Check if in an intersection, if so continue through
         if self.in_intersection:
             return False
@@ -124,6 +143,7 @@ class Vehicle:
         # TODO - Figure out how to just use a loop here DRY
         # Check if the tile 2 units ahead is occupied
         next_x, next_y = int(self.x), int(self.y)
+
         if self.direction == 'N':
             next_y = int(self.y - 2)
         elif self.direction == 'S':
@@ -136,8 +156,17 @@ class Vehicle:
         # Ensure next_x and next_y are within bounds before accessing the grid
         if 0 <= next_y < GRID_SIZE and 0 <= next_x < GRID_SIZE:
             # If the next tile is occupied, stop the vehicle
-            if self.grid[next_y][next_x] == 'occupied' or self.grid[next_y][next_x] == '4_way_red' or self.grid[next_y][next_x] == 'red_light':
+            if self.grid[next_y][next_x] == 'occupied' or self.grid[next_y][next_x] == 'red_light':
                 return True
+
+            if self.grid[next_y][next_x] == '4_way_red':
+                if self.four_way_state == "approaching":
+                    self.four_way_state = "waiting"
+                    self.four_way_timer += 1
+                if self.four_way_state == "proceeding":
+                    return False
+            
+            
             
         # Check if the tile 1 unit ahead is occupied
         if self.direction == 'N':
@@ -288,27 +317,6 @@ class Vehicle:
         self.pulled_over = False
         self.stopped = False
 
-
-    def get_relevant_light(self, traffic_lights):
-        """
-        Get the relevant traffic light for the vehicle's direction.
-        
-        Args:
-            - traffic_lights (list): List of traffic lights in the simulation.
-            
-        Returns:
-            - TrafficLight: The relevant traffic light for the vehicle's direction.
-        """
-        if self.direction == 'N':
-            return next((light for light in traffic_lights if light.x == 13 and light.y == 14), None)
-        elif self.direction == 'S':
-            return next((light for light in traffic_lights if light.x == 10 and light.y == 9), None)
-        elif self.direction == 'E':
-            return next((light for light in traffic_lights if light.x == 9 and light.y == 10), None)
-        elif self.direction == 'W':
-            return next((light for light in traffic_lights if light.x == 14 and light.y == 13), None)
-
-
     def draw(self, win):
         """
         Draw the vehicle on the screen.
@@ -338,13 +346,13 @@ class EmergencyVehicle(Vehicle):
         else:
             self.speed = VEHICLE_BASE_SPEED
 
-    def check_ahead(self, relevant_light):
+    def check_ahead(self):
         """
         Check if the vehicle should stop based on the traffic light ahead and the next tile.
         ** Emergency vehicles will ignore traffic lights if running code 3. **
 
         Args:
-            - relevant_light (TrafficLight): The traffic light relevant to the vehicle's direction.
+            None
 
         Returns:
             - bool: Whether the vehicle should stop.
@@ -352,7 +360,7 @@ class EmergencyVehicle(Vehicle):
         if self.code3:
             return False
         else:
-            return super().check_ahead(relevant_light)
+            return super().check_ahead()
 
     def flash_lights(self):
         """This function makes the color of the emergency vehicle cycle between red, white, and blue"""

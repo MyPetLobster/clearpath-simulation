@@ -80,7 +80,10 @@ class Simulation:
                     pg.quit()
                     sys.exit()
                 if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-                    self.intersection_manager.activate_four_way_red()
+                    if self.intersection_manager.four_way_active:
+                        self.intersection_manager.deactivate_four_way_red()
+                    else:
+                        self.intersection_manager.activate_four_way_red()
 
             self.update()
             self.draw()
@@ -96,10 +99,11 @@ class Simulation:
 
         Returns:
             None
-        """
-        # Update vehicles
+        """ 
         vehicles_to_remove = []
         for vehicle in self.vehicles:
+            if vehicle.four_way_state == "waiting" and vehicle not in self.intersection_manager.vehicles_at_intersection:
+                self.intersection_manager.vehicles_at_intersection.append(vehicle)
             vehicle.move()
             if vehicle.is_off_screen():
                 vehicles_to_remove.append(vehicle)
@@ -153,12 +157,12 @@ class Simulation:
 
             
         # Add new emergency vehicles
-        if random.random() < FREQUENCY_OF_EVENTS / 4:
-            # Generate an emergency vehicle with random starting position/direction & add it to the list
-            x, y, direction, is_code3 = generate_emergency_vehicle()
-            if self.direction_count[direction] < 6:
-                self.direction_count[direction] += 1
-                self.vehicles.append(EmergencyVehicle(x, y, direction, self.city, is_code3))
+        # if random.random() < FREQUENCY_OF_EVENTS / 4:
+        #     # Generate an emergency vehicle with random starting position/direction & add it to the list
+        #     x, y, direction, is_code3 = generate_emergency_vehicle()
+        #     if self.direction_count[direction] < 6:
+        #         self.direction_count[direction] += 1
+        #         self.vehicles.append(EmergencyVehicle(x, y, direction, self.city, is_code3))
 
         # Check for collisions
         if len(self.vehicles) > 1:
