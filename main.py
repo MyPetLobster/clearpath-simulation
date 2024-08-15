@@ -157,12 +157,12 @@ class Simulation:
 
             
         # Add new emergency vehicles
-        # if random.random() < FREQUENCY_OF_EVENTS / 4:
-        #     # Generate an emergency vehicle with random starting position/direction & add it to the list
-        #     x, y, direction, is_code3 = generate_emergency_vehicle()
-        #     if self.direction_count[direction] < 6:
-        #         self.direction_count[direction] += 1
-        #         self.vehicles.append(EmergencyVehicle(x, y, direction, self.city, is_code3))
+        if random.random() < FREQUENCY_OF_EVENTS / 6:
+            # Generate an emergency vehicle with random starting position/direction & add it to the list
+            x, y, direction, is_code3 = generate_emergency_vehicle()
+            if self.direction_count[direction] < 6:
+                self.direction_count[direction] += 1
+                self.vehicles.append(EmergencyVehicle(x, y, direction, self.city, is_code3))
 
         # Check for collisions
         if len(self.vehicles) > 1:

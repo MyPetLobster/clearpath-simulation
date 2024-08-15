@@ -227,7 +227,7 @@ class IntersectionManager:
         Resume normal traffic light operation.
         """
         self.four_way_active = False
-        
+
         for light in self.ew_traffic_lights:
             light.state = 'RED'
             light.timer = 0
@@ -244,4 +244,5 @@ class IntersectionManager:
         self.vehicles_at_intersection = [v for v in self.vehicles_at_intersection if v.four_way_state == "waiting"]
         if self.vehicles_at_intersection:
             first_vehicle = max(self.vehicles_at_intersection, key=lambda v: v.four_way_timer)
-            first_vehicle.four_way_state = "proceeding"
+            if first_vehicle.four_way_timer >= 120:
+                first_vehicle.four_way_state = "proceeding"
