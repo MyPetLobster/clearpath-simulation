@@ -1,6 +1,6 @@
 # ClearPath Traffic Safety Systems Simulation
 
-Simulation of ClearPath's Traffic Safety Systems, including the Emergency Traffic System (ETS) and the Pursuit 
+Simulation of ClearPath's Traffic Safety Systems, including the Emergency Response Traffic System (ETS) and the Pursuit 
 Activated Traffic System (PATS).
 
 ## Background
@@ -19,4 +19,4 @@ and just recently started taking notes and planning out the project. Prior to be
 experience with Python. So instead of doing the bare minimum for this final project, I decided to actually build something that
 will help me toward building a prototype for ClearPath. 
 
-I decided to focus on creating a basic simulation of ClearPath's Traffic Safety Systems for this project. I intend to use pygame and geopy libraries to create a visual simulation of the system in action.
+I decided to focus on creating a basic simulation of ClearPath's Emergency Response Traffic System (ERTS) and Pursuit Activated Traffic System (PATS). The simulation will demonstrate the basic functionality of the systems, including tracking vehicle locations, predicting paths, and updating traffic signals in real-time.
