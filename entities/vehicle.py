@@ -139,8 +139,7 @@ class Vehicle:
     
     def look_both_ways(self):
         """
-        Checks if vehicle can safely enter intersection at 4-way stop.
-            - Checks 5 tiles in both perpendicular directions for oncoming traffic.
+        Checks for oncoming emergency vehicles to see if vehicle can safely enter intersection at 4-way stop.
 
         Returns:
             - bool: Whether the vehicle can proceed.
@@ -168,7 +167,7 @@ class Vehicle:
             - self.x, self.y: The position of the vehicle.
         """
         if self.pulled_over:
-            # Check if it's safe to merge back
+            # If already pulled over, check if it's safe to merge back.
             self.merge(vehicles)
         else:
             # Check the area behind and ahead for emergency vehicles
@@ -190,15 +189,16 @@ class Vehicle:
             bool: True if the vehicle is within range, False otherwise.
         """
         if self.direction == vehicle.direction:
-            if self.direction == "N" and self.y - 2 <= vehicle.y <= self.y + 5:
-                return True
-            elif self.direction == "S" and self.y - 5 <= vehicle.y <= self.y + 2:
-                return True
-            elif self.direction == "E" and self.x - 5 <= vehicle.x <= self.x + 2:
-                return True
-            elif self.direction == "W" and self.x - 2 <= vehicle.x <= self.x + 5:
+            in_range = (
+                (self.direction == "N" and self.y - 2 <= vehicle.y <= self.y + 5) or
+                (self.direction == "S" and self.y - 5 <= vehicle.y <= self.y + 2) or
+                (self.direction == "E" and self.x - 5 <= vehicle.x <= self.x + 2) or
+                (self.direction == "W" and self.x - 2 <= vehicle.x <= self.x + 5)
+            )
+            if in_range:
                 return True
         return False
+
     
     def pull_over(self):
         """
