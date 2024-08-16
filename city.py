@@ -1,6 +1,6 @@
 import pygame as pg
 
-from config import ROAD_COLOR, SIDEWALK_COLOR, BLOCK_COLOR, CROSSWALK_COLOR, TILE_SIZE, YELLOW_STRIPE
+from config import ROAD_COLOR, SIDEWALK_COLOR, BLOCK_COLOR, CROSSWALK_COLOR, TILE_SIZE, YELLOW_STRIPE, CROSSWALK_TILES
 
 
 class CityGrid:
@@ -12,6 +12,7 @@ class CityGrid:
         - grid (list): 2D list representing the city grid
         - crosswalks (list): List of crosswalk coordinates
         - traffic_lights (list): List of traffic lights in the city
+        - active_emergency_vehicles (list): List of active emergency vehicles in the city
 
     Methods:
         - create_grid: Creates a grid of size grid_size x grid_size
@@ -22,7 +23,7 @@ class CityGrid:
     def __init__(self, grid_size):
         self.grid_size = grid_size
         self.grid = self.create_grid()
-        self.crosswalks = [(11,10), (12,10), (11, 13), (12, 13), (10,11), (10, 12), (13, 11), (13, 12)]
+        self.crosswalks = CROSSWALK_TILES["EW"] + CROSSWALK_TILES["NS"]
         self.traffic_lights = []
         self.active_emergency_vehicles = []
     
@@ -38,7 +39,10 @@ class CityGrid:
 
     def set_city_elements(self):
         """
-        Sets up the roads, sidewalks, and crosswalks on the city grid
+        Sets up the roads and sidewalks on the city grid
+
+        Returns:
+            None
         """
         for i in range(self.grid_size):
             self.grid[11][i] = 'road'
@@ -52,10 +56,6 @@ class CityGrid:
             self.grid[i][10] = 'sidewalk'
             self.grid[13][i] = 'sidewalk'
             self.grid[i][13] = 'sidewalk'
-
-        # Set up crosswalks
-        for crosswalk in self.crosswalks:
-            self.grid[crosswalk[0]][crosswalk[1]] = 'crosswalk'
             
     def draw(self, win):
         """
@@ -76,7 +76,7 @@ class CityGrid:
                 else:
                     color = BLOCK_COLOR
                 
-                # Decouple name and color for crosswalks. Need to use "occupied" in crosswalk tiles to control intersection
+                # Decouple 'name' and color for crosswalks. Need to use "occupied" in crosswalk tiles to control intersection
                 if (i, j) in self.crosswalks:
                     color = CROSSWALK_COLOR
 

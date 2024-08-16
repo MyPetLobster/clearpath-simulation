@@ -1,6 +1,6 @@
 import pygame as pg 
 
-from config import RED_LIGHT, YELLOW_LIGHT, GREEN_LIGHT, OFF_LIGHT, RED_LIGHT_DURATION, YELLOW_LIGHT_DURATION, GREEN_LIGHT_DURATION, TILE_SIZE
+from config import RED_LIGHT, YELLOW_LIGHT, GREEN_LIGHT, OFF_LIGHT, RED_LIGHT_DURATION, YELLOW_LIGHT_DURATION, GREEN_LIGHT_DURATION, TILE_SIZE, CROSSWALK_TILES
 
 
 class TrafficLight:
@@ -104,8 +104,6 @@ class IntersectionManager:
         - grid (list): 2D list representing the city grid
         - ew_traffic_lights (list): List of traffic lights on the east-west road
         - ns_traffic_lights (list): List of traffic lights on the north-south road
-        - ew_crosswalks (list): List of crosswalks on the east-west road
-        - ns_crosswalks (list): List of crosswalks on the north-south road
     
     Methods:
         - update_intersection: Update the state of the intersection based on the traffic light state
@@ -118,8 +116,6 @@ class IntersectionManager:
         self.ew_traffic_lights = ew_traffic_lights
         self.ns_traffic_lights = ns_traffic_lights
         self.traffic_lights = self.ew_traffic_lights + self.ns_traffic_lights
-        self.ew_crosswalks = ew_crosswalks
-        self.ns_crosswalks = ns_crosswalks
         self.four_way_active = False
         self.vehicles_at_intersection = []
         self.buffer_delay = 30
@@ -182,9 +178,9 @@ class IntersectionManager:
             - list: List of crosswalks associated with the traffic light
         """
         if light in self.ew_traffic_lights:
-            return self.ew_crosswalks
+            return CROSSWALK_TILES['EW']
         else:
-            return self.ns_crosswalks
+            return CROSSWALK_TILES['NS']
 
     def get_light_color(self,traffic_lights, x, y):
         """
@@ -219,7 +215,7 @@ class IntersectionManager:
             light.timer = 0
             light.yellow_timer = 0
 
-        crosswalks = self.ew_crosswalks + self.ns_crosswalks
+        crosswalks = CROSSWALK_TILES['EW'] + CROSSWALK_TILES['NS']
         for tile in crosswalks:
             # Mark all above crosswalk tiles as '4_way_stop'
             self.grid[tile[0]][tile[1]] = '4_way_red'

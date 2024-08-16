@@ -20,3 +20,9 @@ VEHICLE_BASE_SPEED = 0.2                # tiles per frame (0.2 = 12 tiles per se
 GREEN_LIGHT_DURATION = 10               # seconds
 YELLOW_LIGHT_DURATION = 3               # seconds
 RED_LIGHT_DURATION = 13                 # seconds
+
+
+# Element References
+EW_CROSSWALKS = [(10,11), (10, 12), (13, 11), (13, 12)]
+NS_CROSSWALKS = [(11,10), (12,10), (11, 13), (12, 13)]
+CROSSWALK_TILES = {"EW": EW_CROSSWALKS, "NS": NS_CROSSWALKS}

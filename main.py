@@ -2,7 +2,7 @@ import pygame as pg
 import random
 import sys
 
-from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS
+from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS, CROSSWALK_TILES
 from city import CityGrid
 from entities.vehicle import Vehicle, EmergencyVehicle, generate_vehicle, generate_emergency_vehicle
 from entities.traffic_light import TrafficLight, IntersectionManager
@@ -31,8 +31,6 @@ class Simulation:
         - ew_traffic_lights (list): List of east-west traffic lights
         - ns_traffic_lights (list): List of north-south traffic lights
         - traffic_lights (list): List of all traffic lights
-        - ew_crosswalks (list): List of east-west crosswalks
-        - ns_crosswalks (list): List of north-south crosswalks
         - split_tiles (list): List of split tiles
         - vehicles (list): List of vehicles in the simulation
         - intersection_manager (IntersectionManager): The intersection manager
@@ -50,11 +48,9 @@ class Simulation:
         self.ew_traffic_lights = [TrafficLight(10, 9, 'GREEN'), TrafficLight(10, 14, 'GREEN'), TrafficLight(13, 9, 'GREEN'), TrafficLight(13, 14, 'GREEN')]
         self.ns_traffic_lights = [TrafficLight(9, 10), TrafficLight(14, 10), TrafficLight(9, 13), TrafficLight(14, 13)]
         self.traffic_lights = self.ew_traffic_lights + self.ns_traffic_lights
-        self.ew_crosswalks = [(10,11), (10, 12), (13, 11), (13, 12)]
-        self.ns_crosswalks = [(11,10), (12,10), (11, 13), (12, 13)]
         self.split_tiles = [(10,10), (10,13), (13,10), (13,13)]
         self.vehicles = []
-        self.intersection_manager = IntersectionManager(self.city.grid, self.ew_traffic_lights, self.ns_traffic_lights, self.ew_crosswalks, self.ns_crosswalks)
+        self.intersection_manager = IntersectionManager(self.city.grid, self.ew_traffic_lights, self.ns_traffic_lights, CROSSWALK_TILES['EW'], CROSSWALK_TILES['NS'])
         self.direction_count = {"N": 0, "S": 0, "E": 0, "W": 0}
         self.collision_count = 0
         self.collision_pairs = {}
@@ -227,7 +223,7 @@ class Simulation:
 
             
         # Add new emergency vehicles
-        if random.random() < FREQUENCY_OF_EVENTS / 4:
+        if random.random() < FREQUENCY_OF_EVENTS / 5:
             # Generate an emergency vehicle with random starting position/direction & add it to the list
             x, y, direction, is_code3 = generate_emergency_vehicle()
             self.direction_count[direction] += 1
