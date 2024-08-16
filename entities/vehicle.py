@@ -91,6 +91,20 @@ class Vehicle:
         self.update_vehicle_grid_positions(prev_x, prev_y, current_x, current_y)
         self.in_intersection = self.check_if_in_intersection()
 
+    def draw(self, win):
+        """
+        Draw the vehicle on the screen.
+
+        Args:
+            - win (pygame.Surface): The window to draw the vehicle on.
+
+        Returns:
+            None
+        """
+        # Only draw if the vehicle is at least partially on screen
+        if (0 <= int(self.x * TILE_SIZE) < WIDTH and 
+            0 <= int(self.y * TILE_SIZE) < HEIGHT):
+            pg.draw.rect(win, self.color, (int(self.x * TILE_SIZE), int(self.y * TILE_SIZE), TILE_SIZE, TILE_SIZE))
 
     def check_ahead(self):
         """
@@ -199,10 +213,14 @@ class Vehicle:
                 return True
         return False
 
-    
     def pull_over(self):
         """
         Move the vehicle to the right side of the road if there's an emergency vehicle approaching.
+
+        Modifies:
+            - self.stopped: Whether the vehicle is stopped.
+            - self.pulled_over: Whether the vehicle has pulled over.
+            - self.x, self.y: The position of the vehicle.
         """
         # Do not pull over if within the intersection
         if self.in_intersection: 
@@ -241,6 +259,14 @@ class Vehicle:
     def merge(self, vehicles):
         """
         Merge the vehicle back into the road after pulling over.
+
+        Args:
+            - vehicles (list): List of vehicles in the simulation.
+
+        Modifies:
+            - self.stopped: Whether the vehicle is stopped.
+            - self.pulled_over: Whether the vehicle has pulled over.
+            - self.x, self.y: The position of the vehicle.
         """
         # Check if there's still an emergency vehicle within the danger zone
         for vehicle in vehicles:
@@ -287,25 +313,18 @@ class Vehicle:
         self.pulled_over = False
         self.stopped = False
 
-    def draw(self, win):
-        """
-        Draw the vehicle on the screen.
-
-        Args:
-            - win (pygame.Surface): The window to draw the vehicle on.
-
-        Returns:
-            None
-        """
-        # Only draw if the vehicle is at least partially on screen
-        if (0 <= int(self.x * TILE_SIZE) < WIDTH and 
-            0 <= int(self.y * TILE_SIZE) < HEIGHT):
-            pg.draw.rect(win, self.color, (int(self.x * TILE_SIZE), int(self.y * TILE_SIZE), TILE_SIZE, TILE_SIZE))
-
-
     def update_vehicle_grid_positions(self, prev_x, prev_y, current_x, current_y):
         """
         Update the grid positions of the vehicle.
+
+        Args:
+            - prev_x (int): The previous x-coordinate of the vehicle.
+            - prev_y (int): The previous y-coordinate of the vehicle.
+            - current_x (int): The current x-coordinate of the vehicle.
+            - current_y (int): The current y-coordinate of the vehicle.
+
+        Modifies:
+            - self.grid: The grid of the city.
         """
         # Only reset the old position if the vehicle has fully left that tile and it's within the grid
         if (prev_x != current_x or prev_y != current_y) and 0 <= prev_y < GRID_SIZE and 0 <= prev_x < GRID_SIZE:
@@ -329,15 +348,27 @@ class Vehicle:
         elif self.direction in ['E', 'W'] and 10 <= self.x <= 13:
             return True
         return False
-    
-
 
     def is_off_screen(self):
+        """
+        Check if the vehicle is off the screen.
+
+        Returns:
+            - bool: Whether the vehicle is off the screen.
+        """
         return self.x < 0 or self.x > GRID_SIZE or self.y < 0 or self.y > GRID_SIZE
     
 
 
 class EmergencyVehicle(Vehicle):
+    """
+    A class to represent an emergency vehicle in the simulation.
+    
+    Same attributes and methods as the Vehicle class, with the following modifications:
+        - speed: The speed of the emergency vehicle is increased.
+        - check_ahead: The emergency vehicle can pass through red lights.
+        - flash_lights: The color of the emergency vehicle cycles between red, white, and blue.
+    """
     def __init__(self, x, y, direction, city, color=(255,255,255)):
         super().__init__(x, y, direction, city, color)      # initialize the vehicle with the same attributes
         self.speed = random.uniform(0.7, 0.9) * VEHICLE_BASE_SPEED    # increase the speed of the emergency vehicle
@@ -349,7 +380,6 @@ class EmergencyVehicle(Vehicle):
         """
         return False
 
-
     def flash_lights(self):
         """This function makes the color of the emergency vehicle cycle between red, white, and blue"""
         if self.color == (255, 0, 0):
@@ -359,31 +389,7 @@ class EmergencyVehicle(Vehicle):
         else:
             self.color = (255, 0, 0)
 
-
-
-def generate_emergency_vehicle():
-    """
-    Generate an emergency vehicle with a random starting position, direction
-
-    Returns:
-        - tuple: The x-coordinate, y-coordinate, direction, and color of the emergency vehicle.
-    """
-    # Pick a random direction/starting point for the vehicle
-    direction = random.choice(['N', 'S', 'E', 'W'])
-    if direction == 'N':
-        x, y = 12, 23
-    elif direction == 'S':
-        x, y = 11, 0
-    elif direction == 'E':
-        x, y = 0, 12
-    else:
-        x, y = 23, 11
-
-    color = (255, 255, 255)
-
-    return x, y, direction, color
-
-
+# Vehicle Generation Functions
 def generate_vehicle():
     """
     Generate a vehicle with a random starting position, direction, and color.
@@ -404,5 +410,20 @@ def generate_vehicle():
 
     # Choose a random color for the vehicle
     color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+
+    return x, y, direction, color
+
+def generate_emergency_vehicle():
+    """
+    Generate an emergency vehicle with a random starting position, direction
+
+    Returns:
+        - tuple: The x-coordinate, y-coordinate, direction, and color of the emergency vehicle.
+    """
+    # Pick a random direction/starting point for the vehicle
+    x, y, direction, color = generate_vehicle()
+
+    # Set the base color of the emergency vehicle to white
+    color = (255, 255, 255)
 
     return x, y, direction, color
