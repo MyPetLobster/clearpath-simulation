@@ -191,53 +191,24 @@ class Simulation:
         # Flash Emergency Vehicle Lights
         for vehicle in self.vehicles:
             if isinstance(vehicle, EmergencyVehicle):
-                if vehicle.code3:
-                    vehicle.flash_lights()
+                vehicle.flash_lights()
 
         # Have vehicles check behind for oncoming emergency vehicles
         for vehicle in self.vehicles:
-            if isinstance(vehicle, EmergencyVehicle) and vehicle.code3:
+            if isinstance(vehicle, EmergencyVehicle):
                 pass
             else:
                 vehicle.check_behind(self.vehicles)
 
-        # Remove off-screen vehicles
-        for vehicle in vehicles_to_remove:
-            self.vehicles.remove(vehicle)
-            self.direction_count[vehicle.direction] -= 1
-
         # Add new vehicles
         if random.random() < FREQUENCY_OF_EVENTS:
-            # Generate a vehicle with random starting position/direction & add it to the list
             x, y, direction, color = generate_vehicle()
-            
-            # TODO - Condense the following code 
-            # Check if the direction has green light
-            if direction == "N" or direction == "S":
-                if self.direction_count[direction] < 12 and self.intersection_manager.get_light_color(self.traffic_lights, 9, 10) == (0, 255, 0):
-                    self.direction_count[direction] += 1
-                    self.vehicles.append(Vehicle(x, y, direction, self.city, color))
-                else: 
-                    if self.direction_count[direction] < 4:
-                        self.direction_count[direction] += 1
-                        self.vehicles.append(Vehicle(x, y, direction, self.city, color))
+            self.add_vehicle(direction, x, y, color)
 
-            elif direction == "E" or direction == "W":
-                if self.direction_count[direction] < 12 and self.intersection_manager.get_light_color(self.traffic_lights, 10, 9) == (0, 255, 0):
-                    self.direction_count[direction] += 1
-                    self.vehicles.append(Vehicle(x, y, direction, self.city, color))
-                else: 
-                    if self.direction_count[direction] < 4:
-                        self.direction_count[direction] += 1
-                        self.vehicles.append(Vehicle(x, y, direction, self.city, color))
-
-            
         # Add new emergency vehicles
         if random.random() < FREQUENCY_OF_EVENTS / 5:
-            # Generate an emergency vehicle with random starting position/direction & add it to the list
-            x, y, direction, is_code3 = generate_emergency_vehicle()
-            self.direction_count[direction] += 1
-            self.vehicles.append(EmergencyVehicle(x, y, direction, self.city, is_code3))
+            x, y, direction, color = generate_emergency_vehicle()
+            self.vehicles.append(EmergencyVehicle(x, y, direction, self.city))
 
         # Check for collisions
         if len(self.vehicles) > 1:
@@ -249,8 +220,30 @@ class Simulation:
         emergency_vehicles = [vehicle for vehicle in self.vehicles if isinstance(vehicle, EmergencyVehicle)]
         self.city.active_emergency_vehicles = emergency_vehicles
 
+        # Remove off-screen vehicles
+        for vehicle in vehicles_to_remove:
+            self.vehicles.remove(vehicle)
+            if not isinstance(vehicle, EmergencyVehicle):
+                self.direction_count[vehicle.direction] -= 1
+
         # Update the grid to reflect the current state of the intersection
         self.intersection_manager.update_intersection()
+
+    def add_vehicle(self, direction, x, y, color):
+
+        # Determine direction to set higher limits when light is green
+        if direction == "N" or direction == "S":
+            light_coords = (9, 10)
+        else:
+            light_coords = (10, 9)
+        
+        if self.direction_count[direction] < 12 and self.intersection_manager.get_light_color(self.traffic_lights, light_coords[0] , light_coords[1]) == (0, 255, 0):
+            self.direction_count[direction] += 1
+            self.vehicles.append(Vehicle(x, y, direction, self.city, color))
+        elif self.direction_count[direction] < 4:
+            self.direction_count[direction] += 1
+            self.vehicles.append(Vehicle(x, y, direction, self.city, color))
+
 
     def draw(self):
         """

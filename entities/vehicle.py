@@ -225,9 +225,9 @@ class Vehicle:
             # Check if it's safe to merge back
             self.merge(vehicles)
         else:
-            # Check the area behind and ahead for Code 3 emergency vehicles
+            # Check the area behind and ahead for emergency vehicles
             for vehicle in vehicles:
-                if isinstance(vehicle, EmergencyVehicle) and vehicle.code3:
+                if isinstance(vehicle, EmergencyVehicle):
                     if self.is_emergency_vehicle_in_range(vehicle):
                         self.pull_over()
                         self.stopped = True
@@ -297,7 +297,7 @@ class Vehicle:
         """
         # Check if there's still an emergency vehicle within the danger zone
         for vehicle in vehicles:
-            if isinstance(vehicle, EmergencyVehicle) and vehicle.code3:
+            if isinstance(vehicle, EmergencyVehicle):
                 if self.is_emergency_vehicle_in_range(vehicle):
                     return  # Stay pulled over if the emergency vehicle is still nearby
 
@@ -361,29 +361,17 @@ class Vehicle:
 
 
 class EmergencyVehicle(Vehicle):
-    def __init__(self, x, y, direction, city, code3, color=(255,255,255)):
+    def __init__(self, x, y, direction, city, color=(255,255,255)):
         super().__init__(x, y, direction, city, color)      # initialize the vehicle with the same attributes
-        self.code3 = code3    # whether the vehicle is in code 3 mode (lights and sirens)
-        if self.code3:
-            self.speed = random.uniform(0.7, 0.9) * VEHICLE_BASE_SPEED    # increase the speed of the emergency vehicle
-        else:
-            self.speed = VEHICLE_BASE_SPEED
+        self.speed = random.uniform(0.7, 0.9) * VEHICLE_BASE_SPEED    # increase the speed of the emergency vehicle
+
 
     def check_ahead(self):
         """
-        Check if the vehicle should stop based on the traffic light ahead and the next tile.
-        ** Emergency vehicles will ignore traffic lights if running code 3. **
-
-        Args:
-            None
-
-        Returns:
-            - bool: Whether the vehicle should stop.
+        Override the check_ahead method to allow the emergency vehicle to pass through red
         """
-        if self.code3:
-            return False
-        else:
-            return super().check_ahead()
+        return False
+
 
     def flash_lights(self):
         """This function makes the color of the emergency vehicle cycle between red, white, and blue"""
@@ -414,10 +402,9 @@ def generate_emergency_vehicle():
     else:
         x, y = 23, 11
 
-    # is_code3 = random.random() < 0.8       # 50% chance of generating a vehicle in code 3 mode
-    is_code3 = True
+    color = (255, 255, 255)
 
-    return x, y, direction, is_code3
+    return x, y, direction, color
 
 
 def generate_vehicle():
