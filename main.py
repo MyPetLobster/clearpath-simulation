@@ -22,6 +22,45 @@ class Simulation:
     Class to represent the simulation environment.
     
     Manages the entire simulation including vehicles, traffic lights, collisions, and analysis mode.
+
+    Attributes:
+        - win (Surface): The pygame window.
+        - clock (Clock): The pygame clock.
+        - city (CityGrid): The city grid object.
+        - ew_traffic_lights (list): List of east-west traffic lights.
+        - ns_traffic_lights (list): List of north-south traffic lights.
+        - traffic_lights (list): List of all traffic lights.
+        - split_tiles (list): List of split tiles that connect two lights.
+        - vehicles (list): List of all vehicles in the simulation.
+        - intersection_manager (IntersectionManager): The intersection manager object.
+        - direction_count (dict): Dictionary to track the number of vehicles in each direction.
+        - collision_count (int): The total number of collisions in the simulation.
+        - collision_pairs (dict): Dictionary to track counted collisions.
+        - collision_cooldown (dict): Dictionary to track cooldowns for collisions.
+        - scoreboard (Scoreboard): The scoreboard object.
+        - logo (Logo): The ClearPath logo object.
+        - erts_logo (ERTSLogo): The ERTS logo object.
+        - analysis_timer (int): Timer to track the analysis phase.
+        - analysis_mode (bool): Flag to indicate if the simulation is in analysis mode.
+        - analysis_results (list): List of collision counts during the analysis phase.
+        - analysis_results_ready (bool): Flag to indicate if the analysis results are ready to be displayed.
+        - paused (bool): Flag to indicate if the simulation is paused.
+
+    Methods:
+        - run: Main loop for the simulation.
+        - update: Update the simulation state.
+        - draw: Draw the simulation on the screen.
+        - handle_keydown: Handle keypress events for controlling the simulation.
+        - toggle_clearpath: Toggle the ClearPath mode.
+        - reset_simulation: Reset the simulation to its initial state.
+        - toggle_pause: Toggle the paused state of the simulation.
+        - start_analysis: Start the analysis mode.
+        - update_analysis: Update the analysis phase.
+        - record_analysis_result: Record the current collision count during the analysis phase.
+        - activate_clearpath: Activate the ClearPath system.
+        - end_analysis: End the analysis phase.
+        - add_vehicle: Add a vehicle to the simulation.
+        - quit: Quit the simulation and close the pygame window.
     """
 
     def __init__(self, win, clock):
