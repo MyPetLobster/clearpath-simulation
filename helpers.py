@@ -4,7 +4,6 @@ from config import TILE_SIZE
 from entities.vehicle import EmergencyVehicle
 
 
-
 def draw_split_tile(window, ns_color, ew_color, x, y):
     """
     Draw a split tile with different colored triangles.
@@ -118,6 +117,7 @@ def detect_collision(vehicle, other_vehicle, collision_pairs, collision_count, p
                     return collision_count, True
 
     return collision_count, False
+
 
 def detect_opposing_directions(vehicle, other_vehicle):
     if vehicle.direction == 'N' or vehicle.direction == 'S':

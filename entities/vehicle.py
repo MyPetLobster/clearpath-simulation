@@ -30,7 +30,6 @@ class Vehicle:
         - draw: Draw the vehicle on the screen
         - is_off_screen: Check if the vehicle is off the screen
     """
-
     def __init__(self, x, y, direction, city, color=(255,255,255)):
         self.x = x
         self.y = y
@@ -360,7 +359,6 @@ class Vehicle:
         return self.x < 0 or self.x > GRID_SIZE or self.y < 0 or self.y > GRID_SIZE
     
 
-
 class EmergencyVehicle(Vehicle):
     """
     A class to represent an emergency vehicle in the simulation.
@@ -390,6 +388,7 @@ class EmergencyVehicle(Vehicle):
         else:
             self.color = (255, 0, 0)
 
+
 # Vehicle Generation Functions
 def generate_vehicle():
     """
@@ -413,6 +412,7 @@ def generate_vehicle():
     color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
     return x, y, direction, color
+
 
 def generate_emergency_vehicle():
     """

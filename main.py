@@ -62,7 +62,6 @@ class Simulation:
         - add_vehicle: Add a vehicle to the simulation.
         - quit: Quit the simulation and close the pygame window.
     """
-
     def __init__(self, win, clock):
         """
         Initialize the simulation environment.
@@ -335,6 +334,8 @@ class Simulation:
         """
         pg.quit()
         sys.exit()
+
+
 
 
 if __name__ == "__main__":

@@ -230,7 +230,6 @@ class IntersectionManager:
         self.four_way_active = True
         self.update_intersection()
 
-    
     def deactivate_four_way_red(self):
         """
         Resume normal traffic light operation.
@@ -273,4 +272,3 @@ class IntersectionManager:
                     self.buffer_delay = 90
                 else:
                     first_vehicle.four_way_state = "waiting"
-        
