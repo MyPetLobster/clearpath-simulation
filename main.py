@@ -136,6 +136,34 @@ class Simulation:
         self.reset_simulation()
         self.analysis_mode = True
 
+    def update_analysis(self):
+        self.analysis_timer += 1
+        if self.analysis_timer == ANALYSIS_PHASE_DURATION:
+            self.record_analysis_result()
+            self.activate_clearpath()
+        elif self.analysis_timer == ANALYSIS_PHASE_DURATION * 2:
+            self.record_analysis_result()
+            self.end_analysis()
+
+    def record_analysis_result(self):
+        print(f"self.collision_count: {self.collision_count}")
+        self.analysis_results.append(str(self.collision_count))
+        self.collision_count = 0
+
+    def activate_clearpath(self):
+        self.scoreboard.clearpath_enabled = True
+        self.intersection_manager.activate_four_way_red()
+
+    def end_analysis(self):
+        self.analysis_mode = False
+        self.scoreboard.clearpath_enabled = False
+        self.intersection_manager.deactivate_four_way_red()
+        self.analysis_timer = 0
+        self.collision_count = 0
+        self.paused = True
+        self.analysis_results_ready = True
+        self.scoreboard.display_analysis_results(self.win, self.analysis_results)
+
 
     def update(self):
         """
@@ -144,37 +172,10 @@ class Simulation:
         Returns:
             None
         """ 
-
-        # Analysis Mode 
+        # Analysis Mode
         if self.analysis_mode:
-            self.analysis_timer += 1
-            if self.analysis_timer == ANALYSIS_PHASE_DURATION:
-                print(f"self.collision_count: {self.collision_count}")
-                self.analysis_results.append(str(self.collision_count))
-                print("self.analysis_results: ", self.analysis_results)
-                self.scoreboard.clearpath_enabled = True
-                self.intersection_manager.activate_four_way_red()
-                self.collision_count = 0
-            elif self.analysis_timer == ANALYSIS_PHASE_DURATION * 2:
-                print(f"self.collision_count: {self.collision_count}")
-                self.analysis_results.append(str(self.collision_count))
-                self.analysis_mode = False
-                self.scoreboard.clearpath_enabled = False
-                self.intersection_manager.deactivate_four_way_red()
-                self.analysis_timer = 0
-                self.collision_count = 0
-                self.paused = True
-                self.analysis_results_ready = True
-                self.scoreboard.display_analysis_results(self.win, self.analysis_results)
+            self.update_analysis()
 
-                for event in pg.event.get():
-                    if event.type == pg.KEYDOWN and event.key == pg.K_p:
-                        self.__init__(self.win, self.clock)
-                    if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE or event.type == pg.QUIT:
-                        pg.quit()
-                        sys.exit()
-                    if event.type == pg.KEYDOWN and event.key == pg.K_r:
-                        self.__init__(self.win, self.clock)
 
         vehicles_to_remove = []
         for vehicle in self.vehicles:
