@@ -142,14 +142,14 @@ class Simulation:
         # Analysis Mode 
         if self.analysis_mode:
             self.analysis_timer += 1
-            if self.analysis_timer == 300:
+            if self.analysis_timer == 9000:
                 print(f"self.collision_count: {self.collision_count}")
                 self.analysis_results.append(str(self.collision_count))
                 print("self.analysis_results: ", self.analysis_results)
                 self.scoreboard.clearpath_enabled = True
                 self.intersection_manager.activate_four_way_red()
                 self.collision_count = 0
-            elif self.analysis_timer == 600:
+            elif self.analysis_timer == 18000:
                 print(f"self.collision_count: {self.collision_count}")
                 self.analysis_results.append(str(self.collision_count))
                 self.analysis_mode = False

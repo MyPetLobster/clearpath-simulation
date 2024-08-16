@@ -365,7 +365,7 @@ class EmergencyVehicle(Vehicle):
         super().__init__(x, y, direction, city, color)      # initialize the vehicle with the same attributes
         self.code3 = code3    # whether the vehicle is in code 3 mode (lights and sirens)
         if self.code3:
-            self.speed = VEHICLE_BASE_SPEED * 0.7    # increase the speed of the emergency vehicle
+            self.speed = random.uniform(0.7, 0.9) * VEHICLE_BASE_SPEED    # increase the speed of the emergency vehicle
         else:
             self.speed = VEHICLE_BASE_SPEED
 

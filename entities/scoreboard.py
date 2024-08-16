@@ -44,7 +44,7 @@ class Scoreboard:
         win.blit(instructions_text_3, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 3 * TILE_SIZE))
         instructions_text_4 = self.font.render("Press 'esc' to quit.", True, (255, 255, 255))
         win.blit(instructions_text_4, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 2.5 * TILE_SIZE))
-        instructions_text_5 = self.font.render("Press 'a' to run 10 min analysis", True, (255, 255, 255))
+        instructions_text_5 = self.font.render("Press 'a' to run 5 min analysis", True, (255, 255, 255))
         win.blit(instructions_text_5, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 2 * TILE_SIZE))
 
     def display_analysis_results(self, win, analysis_results):
