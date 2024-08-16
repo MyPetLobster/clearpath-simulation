@@ -4,7 +4,6 @@ import pygame as pg
 from config import VEHICLE_BASE_SPEED, GRID_SIZE, TILE_SIZE, WIDTH, HEIGHT
 
 
-
 class Vehicle:
     """
     A class to represent a vehicle in the simulation.
@@ -18,7 +17,12 @@ class Vehicle:
         - city (CityGrid): The city grid the vehicle is traveling on
         - grid (list): The grid of the city
         - stopped (bool): Whether the vehicle is stopped
-        - in_intersection (bool): Whether the vehicle is in the intersection
+        - pulled_over (bool): Whether the vehicle has pulled over for an emergency vehicle
+        - at_red_light (bool): Whether the vehicle is at a red light
+        - in_intersection (bool): Whether the vehicle is within the intersection
+        - four_way_timer (int): Timer for the 4-way stop
+        - four_way_state (str): State of the 4-way stop
+        - wait_time (int): Time the vehicle has been waiting at a red light
     
     Methods:
         - move: Move the vehicle in the direction it is traveling
@@ -58,11 +62,11 @@ class Vehicle:
         Returns:
             None
         """
-        # Check if the vehicle should pull over for an emergency vehicle
+        # Check if the vehicle is pulled over for emergency vehicle
         if self.pulled_over:
             return
 
-        # Check ahead to decide if the vehicle should stop
+        # Check ahead for occupied tiles or red lights
         if self.check_ahead():
             self.stopped = True
             return
@@ -72,7 +76,7 @@ class Vehicle:
         # Save the previous position
         prev_x, prev_y = int(self.x), int(self.y)
 
-        # Move the vehicle
+        # Move the vehicle based on its direction and speed
         if self.direction == 'N':
             self.y -= self.speed
         elif self.direction == 'S':
@@ -82,27 +86,10 @@ class Vehicle:
         elif self.direction == 'W':
             self.x -= self.speed
 
-        # Update the grid to reflect the new position
+        # Update the grid to reflect the new position and check if the vehicle is in the intersection
         current_x, current_y = int(self.x), int(self.y)
-
-        # Only reset the old position if the vehicle has fully left that tile
-        if (prev_x != current_x or prev_y != current_y) and 0 <= prev_y < GRID_SIZE and 0 <= prev_x < GRID_SIZE:
-            if self.grid[prev_y][prev_x] != '4_way_red':
-                self.grid[prev_y][prev_x] = 'road'
-
-        # Set grid to occupied for the new position if it's within the grid
-        if 1 <= current_y < GRID_SIZE and 1 <= current_x < GRID_SIZE:  # Changed from 0 to 1 to fix negative indexing/'occupied' bug
-            if self.grid[current_y][current_x] != '4_way_red':
-                self.grid[current_y][current_x] = 'occupied'
-
-        # Check if vehicle has entered or exited the intersection
-        if self.direction in ['N', 'S'] and 10 <= self.y <= 13:
-            self.in_intersection = True
-        elif self.direction in ['E', 'W'] and 10 <= self.x <= 13:
-            self.in_intersection = True
-        else:
-            self.in_intersection = False
-
+        self.update_vehicle_grid_positions(prev_x, prev_y, current_x, current_y)
+        self.in_intersection = self.check_if_in_intersection()
 
 
     def check_ahead(self):
@@ -258,6 +245,7 @@ class Vehicle:
         """
         Move the vehicle to the right side of the road if there's an emergency vehicle approaching.
         """
+        # Do not pull over if within the intersection
         if self.in_intersection: 
             return
         
@@ -354,7 +342,37 @@ class Vehicle:
         if (0 <= int(self.x * TILE_SIZE) < WIDTH and 
             0 <= int(self.y * TILE_SIZE) < HEIGHT):
             pg.draw.rect(win, self.color, (int(self.x * TILE_SIZE), int(self.y * TILE_SIZE), TILE_SIZE, TILE_SIZE))
+
+            
+    def update_vehicle_grid_positions(self, prev_x, prev_y, current_x, current_y):
+        """
+        Update the grid positions of the vehicle.
+        """
+        # Only reset the old position if the vehicle has fully left that tile and it's within the grid
+        if (prev_x != current_x or prev_y != current_y) and 0 <= prev_y < GRID_SIZE and 0 <= prev_x < GRID_SIZE:
+            if self.grid[prev_y][prev_x] != '4_way_red':
+                self.grid[prev_y][prev_x] = 'road'
+
+        # Set grid to occupied for the new position if it's within the grid
+        if 1 <= current_y < GRID_SIZE and 1 <= current_x < GRID_SIZE:  # Changed from 0 to 1 to fix negative indexing/'occupied' bug
+            if self.grid[current_y][current_x] != '4_way_red':
+                self.grid[current_y][current_x] = 'occupied'
+
+    def check_if_in_intersection(self):
+        """
+        Check if the vehicle is within the intersection.
+        
+        Returns:
+            - bool: Whether the vehicle is in the intersection.
+        """
+        if self.direction in ['N', 'S'] and 10 <= self.y <= 13:
+            return True
+        elif self.direction in ['E', 'W'] and 10 <= self.x <= 13:
+            return True
+        return False
     
+
+
     def is_off_screen(self):
         return self.x < 0 or self.x > GRID_SIZE or self.y < 0 or self.y > GRID_SIZE
     
