@@ -21,6 +21,8 @@ GREEN_LIGHT_DURATION = 10               # seconds
 YELLOW_LIGHT_DURATION = 3               # seconds
 RED_LIGHT_DURATION = 13                 # seconds
 
+# Analysis Parameters
+ANALYSIS_PHASE_DURATION = 9000
 
 # Element References
 EW_CROSSWALKS = [(10,11), (10, 12), (13, 11), (13, 12)]

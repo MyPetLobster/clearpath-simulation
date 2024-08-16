@@ -2,15 +2,12 @@ import pygame as pg
 import random
 import sys
 
-from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS, CROSSWALK_TILES
+from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS, CROSSWALK_TILES, ANALYSIS_PHASE_DURATION
 from city import CityGrid
 from entities.vehicle import Vehicle, EmergencyVehicle, generate_vehicle, generate_emergency_vehicle
 from entities.traffic_light import TrafficLight, IntersectionManager
 from entities.scoreboard import Scoreboard, Logo, ERTSLogo
 from helpers import draw_split_tile, collision_counter
-
-
-
 
 
 # Initialize pygame
@@ -34,6 +31,18 @@ class Simulation:
         - split_tiles (list): List of split tiles
         - vehicles (list): List of vehicles in the simulation
         - intersection_manager (IntersectionManager): The intersection manager
+        - direction_count (dict): Dictionary to keep track of the number of vehicles in each direction
+        - collision_count (int): The total number of collisions
+        - collision_pairs (dict): Dictionary to track counted collisions
+        - collision_cooldown (dict): Dictionary to track cooldowns for collisions
+        - scoreboard (Scoreboard): The scoreboard and analysis results
+        - logo (Logo): The ClearPath logo
+        - erts_logo (ERTSLogo): The ERTS logo
+        - analysis_timer (int): Timer for the analysis mode
+        - analysis_mode (bool): Flag to indicate if the simulation is in analysis mode
+        - analysis_results (list): List of analysis results
+        - analysis_results_ready (bool): Flag to indicate if the analysis results are ready to be displayed
+        - paused (bool): Flag to indicate if the simulation is paused
 
     Methods:
         - run: Main loop for the simulation
@@ -64,8 +73,6 @@ class Simulation:
         self.analysis_results_ready = False
         self.paused = False
 
-
-
         # Add traffic lights to city grid data structure
         for light in self.traffic_lights:
             self.city.add_traffic_light(light)
@@ -73,59 +80,62 @@ class Simulation:
     def run(self):
         """
         Main loop for the simulation
-        
-        Returns:
-            None
         """
         running = True
         while running:
             for event in pg.event.get():
-                if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE or event.type == pg.QUIT:
-                    running = False
-                    pg.quit()
-                    sys.exit()
-                if event.type == pg.KEYDOWN and event.key == pg.K_c:
-                    if self.intersection_manager.four_way_active:
-                        self.intersection_manager.deactivate_four_way_red()
-                        self.scoreboard.clearpath_enabled = False
-                    else:
-                        self.intersection_manager.activate_four_way_red()
-                        self.scoreboard.clearpath_enabled = True
-                # Reset the simulation
-                if event.type == pg.KEYDOWN and event.key == pg.K_r:
-                    self.__init__(self.win, self.clock)
-                # Pause the simulation
-                if event.type == pg.KEYDOWN and event.key == pg.K_p:
-                    self.paused = True
-                    while self.paused:
-                        for event in pg.event.get():
-                            if event.type == pg.KEYDOWN and event.key == pg.K_p:
-                                self.paused = False
-                            if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE or event.type == pg.QUIT:
-                                running = False
-                                pg.quit()
-                                sys.exit()
-                            if event.type == pg.KEYDOWN and event.key == pg.K_c:
-                                if self.intersection_manager.four_way_active:
-                                    self.intersection_manager.deactivate_four_way_red()
-                                    self.scoreboard.clearpath_enabled = False
-                                else:
-                                    self.intersection_manager.activate_four_way_red()
-                                    self.scoreboard.clearpath_enabled = True
-                            # Reset the simulation
-                            if event.type == pg.KEYDOWN and event.key == pg.K_r:
-                                self.__init__(self.win, self.clock)
-                # Run 10 minute analysis
-                if event.type == pg.KEYDOWN and event.key == pg.K_a:
-                    self.__init__(self.win, self.clock)
-                    self.analysis_mode = True
+                if event.type == pg.QUIT:
+                    self.quit()
+                if event.type == pg.KEYDOWN:
+                    self.handle_keydown(event)
+
             if not self.paused:
                 self.update()
                 self.draw()
                 pg.display.flip()
                 self.clock.tick(60)
+        self.quit()
+
+    def handle_keydown(self, event):
+        if event.key == pg.K_ESCAPE:
+            self.quit()
+        elif event.key == pg.K_c:
+            self.toggle_clearpath()
+        elif event.key == pg.K_r:
+            self.reset_simulation()
+        elif event.key == pg.K_p:
+            self.toggle_pause()
+        elif event.key == pg.K_a:
+            self.start_analysis()
+
+    def toggle_clearpath(self):
+        if self.intersection_manager.four_way_active:
+            self.intersection_manager.deactivate_four_way_red()
+            self.scoreboard.clearpath_enabled = False
+        else:
+            self.intersection_manager.activate_four_way_red()
+            self.scoreboard.clearpath_enabled = True
+
+    def quit(self):
         pg.quit()
         sys.exit()
+
+    def reset_simulation(self):
+        self.__init__(self.win, self.clock)
+
+    def toggle_pause(self):
+        self.paused = not self.paused
+        while self.paused:
+            for event in pg.event.get():
+                if event.type == pg.KEYDOWN:
+                    self.handle_keydown(event)
+                if event.type == pg.QUIT:
+                    self.quit()
+
+    def start_analysis(self):
+        self.reset_simulation()
+        self.analysis_mode = True
+
 
     def update(self):
         """
@@ -138,14 +148,14 @@ class Simulation:
         # Analysis Mode 
         if self.analysis_mode:
             self.analysis_timer += 1
-            if self.analysis_timer == 9000:
+            if self.analysis_timer == ANALYSIS_PHASE_DURATION:
                 print(f"self.collision_count: {self.collision_count}")
                 self.analysis_results.append(str(self.collision_count))
                 print("self.analysis_results: ", self.analysis_results)
                 self.scoreboard.clearpath_enabled = True
                 self.intersection_manager.activate_four_way_red()
                 self.collision_count = 0
-            elif self.analysis_timer == 18000:
+            elif self.analysis_timer == ANALYSIS_PHASE_DURATION * 2:
                 print(f"self.collision_count: {self.collision_count}")
                 self.analysis_results.append(str(self.collision_count))
                 self.analysis_mode = False
