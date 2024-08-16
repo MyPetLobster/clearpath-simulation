@@ -6,7 +6,7 @@ from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS
 from city import CityGrid
 from entities.vehicle import Vehicle, EmergencyVehicle, generate_vehicle, generate_emergency_vehicle
 from entities.traffic_light import TrafficLight, IntersectionManager
-from entities.scoreboard import Scoreboard, Logo
+from entities.scoreboard import Scoreboard, Logo, ERTSLogo
 from helpers import draw_split_tile, collision_counter
 
 
@@ -61,6 +61,13 @@ class Simulation:
         self.collision_cooldown = {}
         self.scoreboard = Scoreboard()
         self.logo = Logo()
+        self.erts_logo = ERTSLogo()
+        self.analysis_timer = 0
+        self.analysis_mode = False
+        self.analysis_results = []
+        self.analysis_results_ready = False
+        self.paused = False
+
 
 
         # Add traffic lights to city grid data structure
@@ -93,11 +100,11 @@ class Simulation:
                     self.__init__(self.win, self.clock)
                 # Pause the simulation
                 if event.type == pg.KEYDOWN and event.key == pg.K_p:
-                    paused = True
-                    while paused:
+                    self.paused = True
+                    while self.paused:
                         for event in pg.event.get():
                             if event.type == pg.KEYDOWN and event.key == pg.K_p:
-                                paused = False
+                                self.paused = False
                             if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE or event.type == pg.QUIT:
                                 running = False
                                 pg.quit()
@@ -115,13 +122,12 @@ class Simulation:
                 # Run 10 minute analysis
                 if event.type == pg.KEYDOWN and event.key == pg.K_a:
                     self.__init__(self.win, self.clock)
-
-
-            self.update()
-            self.draw()
-
-            pg.display.flip()
-            self.clock.tick(60)
+                    self.analysis_mode = True
+            if not self.paused:
+                self.update()
+                self.draw()
+                pg.display.flip()
+                self.clock.tick(60)
         pg.quit()
         sys.exit()
 
@@ -132,6 +138,38 @@ class Simulation:
         Returns:
             None
         """ 
+
+        # Analysis Mode 
+        if self.analysis_mode:
+            self.analysis_timer += 1
+            if self.analysis_timer == 300:
+                print(f"self.collision_count: {self.collision_count}")
+                self.analysis_results.append(str(self.collision_count))
+                print("self.analysis_results: ", self.analysis_results)
+                self.scoreboard.clearpath_enabled = True
+                self.intersection_manager.activate_four_way_red()
+                self.collision_count = 0
+            elif self.analysis_timer == 600:
+                print(f"self.collision_count: {self.collision_count}")
+                self.analysis_results.append(str(self.collision_count))
+                self.analysis_mode = False
+                self.scoreboard.clearpath_enabled = False
+                self.intersection_manager.deactivate_four_way_red()
+                self.analysis_timer = 0
+                self.collision_count = 0
+                self.paused = True
+                self.analysis_results_ready = True
+                self.scoreboard.display_analysis_results(self.win, self.analysis_results)
+
+                for event in pg.event.get():
+                    if event.type == pg.KEYDOWN and event.key == pg.K_p:
+                        self.__init__(self.win, self.clock)
+                    if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE or event.type == pg.QUIT:
+                        pg.quit()
+                        sys.exit()
+                    if event.type == pg.KEYDOWN and event.key == pg.K_r:
+                        self.__init__(self.win, self.clock)
+
         vehicles_to_remove = []
         for vehicle in self.vehicles:
             if vehicle.four_way_state == "waiting" and vehicle not in self.intersection_manager.vehicles_at_intersection:
@@ -229,9 +267,17 @@ class Simulation:
             light.draw(self.win)
         for vehicle in self.vehicles:
             vehicle.draw(self.win)
-
-        self.scoreboard.draw(self.win)
+        
+        if self.analysis_results_ready:
+            self.scoreboard.display_analysis_results(self.win, self.analysis_results)
+        else:
+            self.scoreboard.draw(self.win)
         self.logo.draw(self.win)
+
+        if self.intersection_manager.four_way_active:
+            self.erts_logo.draw(self.win, True)
+        else:
+            self.erts_logo.draw(self.win, False)
 
     
 
