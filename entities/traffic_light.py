@@ -11,8 +11,10 @@ class TrafficLight:
         - x (int): x-coordinate of the traffic light
         - y (int): y-coordinate of the traffic light
         - state (str): Current state of the traffic light (RED, YELLOW, GREEN)
+        - active_color (tuple): RGB color of the active light
         - timer (int): Timer to keep track of how long the light has been in its current state
         - yellow_timer (int): Timer to keep track of how long the light has been in the yellow state
+        - blinking_red_timer (int): Timer to keep track of how long the light has been in the blinking red state
 
     Methods:
         - update: Update the state of the traffic light based on the timer
@@ -32,12 +34,8 @@ class TrafficLight:
         """
         Update the state of the traffic light based on the timer
         
-            - The traffic light will cycle through the following states:
-                RED -> YELLOW -> GREEN -> RED
-            - The duration of each state is defined in the config file
-
-        Returns:
-            None
+        Modifies:
+            - state (str): Current state of the traffic light (RED, YELLOW, GREEN)
         """
         self.timer += 1
         if self.state == 'YELLOW':
@@ -77,7 +75,7 @@ class TrafficLight:
             else:
                 color = OFF_LIGHT
 
-            # # Alternate between red and off every 0.5 seconds
+            # Alternate between red and off every 0.5 seconds
             if self.blinking_red_timer % 30 < 15:
                 if color == RED_LIGHT:
                     color = OFF_LIGHT
@@ -85,7 +83,6 @@ class TrafficLight:
                     color = RED_LIGHT
 
         self.active_color = color
-
         pg.draw.rect(win, color, (self.y * TILE_SIZE, self.x * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
     def get_yellow_duration(self):
@@ -104,6 +101,10 @@ class IntersectionManager:
         - grid (list): 2D list representing the city grid
         - ew_traffic_lights (list): List of traffic lights on the east-west road
         - ns_traffic_lights (list): List of traffic lights on the north-south road
+        - traffic_lights (list): List of all traffic lights 
+        - four_way_active (bool): Flag to indicate if the intersection is in a 4-way stop state
+        - vehicles_at_intersection (list): List of vehicles currently at the intersection
+        - buffer_delay (int): Delay to prevent vehicles from immediately proceeding after a 4-way stop
     
     Methods:
         - update_intersection: Update the state of the intersection based on the traffic light state
@@ -111,7 +112,7 @@ class IntersectionManager:
         - mark_crosswalks_clear: Mark the crosswalks as clear when the light is green
         - get_crosswalks_for_light: Get the crosswalks associated with a given traffic light
     """
-    def __init__(self, grid, ew_traffic_lights, ns_traffic_lights, ew_crosswalks, ns_crosswalks):
+    def __init__(self, grid, ew_traffic_lights, ns_traffic_lights):
         self.grid = grid
         self.ew_traffic_lights = ew_traffic_lights
         self.ns_traffic_lights = ns_traffic_lights
@@ -133,7 +134,9 @@ class IntersectionManager:
         if self.four_way_active:
             self.manage_four_way_stop()
         else:
+            # Mark crosswalks as occupied or clear based on the light state 
             for light in self.traffic_lights:
+                # Yellow light is considered red if it's been active for more than 0.8 seconds
                 if light.state == 'RED' or (light.state == 'YELLOW' and light.get_yellow_duration() > 0.8):
                     self.mark_crosswalks_occupied(light)
                 else:
@@ -209,6 +212,10 @@ class IntersectionManager:
     def activate_four_way_red(self):
         """
         Turn all traffic lights to blinking red.
+
+        Modifies:
+            - traffic_lights: Set all traffic lights to '4_WAY_RED' state
+            - grid: Mark all crosswalk tiles as '4_way
         """
         for light in self.traffic_lights:
             light.state = '4_WAY_RED'
@@ -217,19 +224,23 @@ class IntersectionManager:
 
         crosswalks = CROSSWALK_TILES['EW'] + CROSSWALK_TILES['NS']
         for tile in crosswalks:
-            # Mark all above crosswalk tiles as '4_way_stop'
+            # Mark all crosswalk tiles as '4_way_stop'
             self.grid[tile[0]][tile[1]] = '4_way_red'
 
         self.four_way_active = True
         self.update_intersection()
-        return True
+
     
     def deactivate_four_way_red(self):
         """
         Resume normal traffic light operation.
+
+        Modifies:
+            - traffic_lights: Reset all traffic lights to their original state
         """
         self.four_way_active = False
 
+        # Reset all traffic lights to their original state
         for light in self.ew_traffic_lights:
             light.state = 'RED'
             light.timer = 0
@@ -241,11 +252,20 @@ class IntersectionManager:
 
         self.update_intersection()
 
-
     def manage_four_way_stop(self):
+        """
+        Manage the 4-way stop state of the intersection
+        
+        - Vehicles must wait for all other vehicles to clear the intersection before proceeding
+        
+        Modifies:
+            - vehicles_at_intersection: Remove vehicles that have cleared the intersection
+            - buffer_delay: Delay to prevent vehicles from immediately proceeding after a 4-way stop
+        """
         self.buffer_delay = max(0, self.buffer_delay - 1)
         self.vehicles_at_intersection = [v for v in self.vehicles_at_intersection if v.four_way_state == "waiting"]
         if self.vehicles_at_intersection:
+            # Determine which vehicle has been waiting the longest
             first_vehicle = max(self.vehicles_at_intersection, key=lambda v: v.four_way_timer)
             if first_vehicle.four_way_timer >= 120 and self.buffer_delay == 0:
                 if first_vehicle.look_both_ways():

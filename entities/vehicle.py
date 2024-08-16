@@ -116,38 +116,39 @@ class Vehicle:
         Returns:
             - bool: Whether the vehicle should stop.
         """
-        # Continue without checking if in intersection
+        # Continue without checking if in intersection or in the "proceeding" state
         if self.in_intersection or self.four_way_state == "proceeding":
             return False
 
-        next_x, next_y = int(self.x), int(self.y)
+        # Check the next two tiles ahead
+        for i in [1, 2]:
+            next_x, next_y = int(self.x), int(self.y)
 
-        # Check if either of the next two tiles are occupied
-        for i in range(1, 3):
             if self.direction == 'N':
-                next_y = int(self.y - i)
+                next_y -= i
             elif self.direction == 'S':
-                next_y = int(self.y + i)
+                next_y += i
             elif self.direction == 'E':
-                next_x = int(self.x + i)
+                next_x += i
             elif self.direction == 'W':
-                next_x = int(self.x - i)
+                next_x -= i
 
             # Ensure next_x and next_y are within bounds before accessing the grid
             if 0 <= next_y < GRID_SIZE and 0 <= next_x < GRID_SIZE:
-                # If the next tile is occupied, stop the vehicle
-                if self.grid[next_y][next_x] == 'occupied' or self.grid[next_y][next_x] == '4_way_red' or self.grid[next_y][next_x] == 'red_light':
+                tile = self.grid[next_y][next_x]
+
+                if tile == 'occupied' or tile == 'red_light':
                     return True
 
-                if self.grid[next_y][next_x] == '4_way_red':
-                    if self.four_way_state == "approaching": 
-                        self.four_way_state = "waiting" 
+                if tile == '4_way_red':
+                    if self.four_way_state == "approaching":
+                        self.four_way_state = "waiting"
                         self.four_way_timer += 1
                         return True
-                    if self.four_way_state == "waiting":
+                    elif self.four_way_state == "waiting":
                         self.four_way_timer += 1
                         return True
-            
+
         # If we've reached this point, there's no reason to stop
         return False
     

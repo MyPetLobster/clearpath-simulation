@@ -86,10 +86,7 @@ class Simulation:
         self.traffic_lights = self.ew_traffic_lights + self.ns_traffic_lights
         self.split_tiles = [(10,10), (10,13), (13,10), (13,13)]
         self.vehicles = []
-        self.intersection_manager = IntersectionManager(
-            self.city.grid, self.ew_traffic_lights, self.ns_traffic_lights, 
-            CROSSWALK_TILES['EW'], CROSSWALK_TILES['NS']
-        )
+        self.intersection_manager = IntersectionManager(self.city.grid, self.ew_traffic_lights, self.ns_traffic_lights)
         self.direction_count = {"N": 0, "S": 0, "E": 0, "W": 0}
         self.collision_count = 0
         self.collision_pairs = {}
