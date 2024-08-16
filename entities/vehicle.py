@@ -102,78 +102,37 @@ class Vehicle:
         Returns:
             - bool: Whether the vehicle should stop.
         """
-        # Check if in an intersection, if so continue through
-        if self.in_intersection:
+        # Continue without checking if in intersection
+        if self.in_intersection or self.four_way_state == "proceeding":
             return False
-        
-        if self.four_way_state == "proceeding":
-            return False
-        
-        
-        # TODO - Figure out how to just use a loop here DRY
 
-        # Check if the tile 2 units ahead is occupied
         next_x, next_y = int(self.x), int(self.y)
 
-        if self.direction == 'N':
-            next_y = int(self.y - 2)
-        elif self.direction == 'S':
-            next_y = int(self.y + 2)
-        elif self.direction == 'E':
-            next_x = int(self.x + 2)
-        elif self.direction == 'W':
-            next_x = int(self.x - 2)
+        # Check if either of the next two tiles are occupied
+        for i in range(1, 3):
+            if self.direction == 'N':
+                next_y = int(self.y - i)
+            elif self.direction == 'S':
+                next_y = int(self.y + i)
+            elif self.direction == 'E':
+                next_x = int(self.x + i)
+            elif self.direction == 'W':
+                next_x = int(self.x - i)
 
-        # Ensure next_x and next_y are within bounds before accessing the grid
-        if 0 <= next_y < GRID_SIZE and 0 <= next_x < GRID_SIZE:
-
-            # If the next tile is occupied, stop the vehicle
-            if self.grid[next_y][next_x] == 'occupied' or self.grid[next_y][next_x] == 'red_light':
-                return True
-
-            if self.grid[next_y][next_x] == '4_way_red':
-                if self.four_way_state == "approaching": 
-                    self.four_way_state = "waiting" 
-
-                    self.four_way_timer += 1
+            # Ensure next_x and next_y are within bounds before accessing the grid
+            if 0 <= next_y < GRID_SIZE and 0 <= next_x < GRID_SIZE:
+                # If the next tile is occupied, stop the vehicle
+                if self.grid[next_y][next_x] == 'occupied' or self.grid[next_y][next_x] == '4_way_red' or self.grid[next_y][next_x] == 'red_light':
                     return True
-                elif self.four_way_state == "waiting":
-                    self.four_way_timer += 1
-                    return True
-            
-        #### TODO - MIGHT BE ABLE TO JUST DELETE ALL THIS
-        # Check if the tile 1 unit ahead is occupied
-        if self.direction == 'N':
-            next_y = int(self.y - 1)
-        elif self.direction == 'S':
-            next_y = int(self.y + 1)
-        elif self.direction == 'E':
-            next_x = int(self.x + 1)
-        elif self.direction == 'W':
-            next_x = int(self.x - 1)
 
-        # if self.four_way_timer > 120:
-        #     self.four_way_state = "proceeding"
-        #     self.four_way_timer = 0
-        #     return False
-        # if self.four_way_state == "proceeding":
-        #             return False
-        # Ensure next_x and next_y are within bounds before accessing the grid
-        if 0 <= next_y < GRID_SIZE and 0 <= next_x < GRID_SIZE:
-            # If the next tile is occupied, stop the vehicle
-            if self.grid[next_y][next_x] == 'occupied' or self.grid[next_y][next_x] == '4_way_red' or self.grid[next_y][next_x] == 'red_light':
-                return True
-
-            if self.grid[next_y][next_x] == '4_way_red':
-                print("At 4 way red - TWO")
-                if self.four_way_state == "approaching": 
-                    self.four_way_state = "waiting" 
-                    self.four_way_timer += 1
-                    return True
-                if self.four_way_state == "waiting":
-                    self.four_way_timer += 1
-                    return True
-            
+                if self.grid[next_y][next_x] == '4_way_red':
+                    if self.four_way_state == "approaching": 
+                        self.four_way_state = "waiting" 
+                        self.four_way_timer += 1
+                        return True
+                    if self.four_way_state == "waiting":
+                        self.four_way_timer += 1
+                        return True
             
         # If we've reached this point, there's no reason to stop
         return False
@@ -343,7 +302,7 @@ class Vehicle:
             0 <= int(self.y * TILE_SIZE) < HEIGHT):
             pg.draw.rect(win, self.color, (int(self.x * TILE_SIZE), int(self.y * TILE_SIZE), TILE_SIZE, TILE_SIZE))
 
-            
+
     def update_vehicle_grid_positions(self, prev_x, prev_y, current_x, current_y):
         """
         Update the grid positions of the vehicle.
