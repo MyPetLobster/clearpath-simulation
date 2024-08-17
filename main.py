@@ -97,12 +97,12 @@ class Simulation:
         self.scoreboard = Scoreboard()
         self.logo = Logo()
         self.erts_logo = ERTSLogo()
-        self.analysis_display = AnalysisDisplay()
         self.analysis_timer = 0
         self.analysis_mode = False
         self.analysis_results = []
         self.analysis_results_ready = False
         self.analytics = Analytics()
+        self.analysis_display = AnalysisDisplay(self.analytics)
         self.veh_ct = 0
         self.emveh_ct = 0
         self.paused = False
@@ -170,7 +170,7 @@ class Simulation:
             self.add_vehicle(direction, x, y, color)
 
         # Add new emergency vehicles
-        if random.random() < FREQUENCY_OF_EVENTS / 5:
+        if random.random() < FREQUENCY_OF_EVENTS / 3:
             x, y, direction, color = generate_emergency_vehicle()
             self.vehicles.append(EmergencyVehicle(x, y, direction, self.city))
             self.emveh_ct += 1
@@ -183,9 +183,11 @@ class Simulation:
             # Update ERTS collision counters for analysis display element
             if self.analysis_mode:
                 if self.analysis_display.phase_two_active:
-                    self.analysis_display.erts_enabled_collision_count = self.collision_count
+                    self.analytics.erts_collision_count = self.collision_count
+                    print("ERTS Collision Count: ", self.collision_count)
                 else:
-                    self.analysis_display.erts_disabled_collision_count = self.collision_count
+                    self.analytics.no_erts_collision_count = self.collision_count
+                    print("No ERTS Collision Count: ", self.collision_count)
 
         self.scoreboard.update_collision_count(self.collision_count)
 
@@ -221,7 +223,10 @@ class Simulation:
         
         # Draw the scoreboard or analysis results
         if self.analysis_results_ready:
-            self.scoreboard.display_analysis_results(self.win, self.analysis_results)
+            print("Analysis Results Ready:")
+            print("self.analytics.erts_collision_count: ", self.analytics.erts_collision_count)
+            print("self.analytics.no_erts_collision_count: ", self.analytics.no_erts_collision_count)
+            self.scoreboard.display_analysis_results(self.win, self.analytics)
         else:
             self.scoreboard.draw(self.win)
 
@@ -332,18 +337,19 @@ class Simulation:
         self.scoreboard.clearpath_enabled = False
         self.intersection_manager.deactivate_four_way_red()
         self.analysis_timer = 0
-        self.collision_count = 0
+        self.collision_count = 0    #### ORDER OF THINGS IS MESSING EVERYTHING UP
         self.paused = True
         self.analysis_results_ready = True
-        self.scoreboard.display_analysis_results(self.win, self.analysis_results)
         print("Analysis Results:")
         print("Total ERTS Cars: ", self.analytics.erts_car_count)
+        print("ERTS Collision Count: ", self.analytics.erts_collision_count)
         print("Total ERTS Emergencies: ", self.analytics.erts_emergency_count)
         print(f"Total ERTS Vehicles: {self.analytics.erts_car_count + self.analytics.erts_emergency_count}")
         print("ERTS Collision Rate: ", self.analytics.erts_collision_rate)
         print("ERTS Weighted Collision Rate: ", self.analytics.erts_weighted_collision_rate)
         print("--------------------------------")
         print("Total No ERTS Cars: ", self.analytics.no_erts_car_count)
+        print("No ERTS Collision Count: ", self.analytics.no_erts_collision_count)
         print("Total No ERTS Emergencies: ", self.analytics.no_erts_emergency_count)
         print(f"Total No ERTS Vehicles: {self.analytics.no_erts_car_count + self.analytics.no_erts_emergency_count}")
         print("No ERTS Collision Rate: ", self.analytics.no_erts_collision_rate)
