@@ -326,8 +326,8 @@ class Vehicle:
         Modifies:
             - self.grid: The grid of the city.
         """
-        # Only reset the old position if the vehicle has fully left that tile and it's within the grid
-        if (prev_x != current_x or prev_y != current_y) and 0 <= prev_y < GRID_SIZE and 0 <= prev_x < GRID_SIZE:
+        # Always mark the previous position as 'road'
+        if 0 <= prev_y < GRID_SIZE and 0 <= prev_x < GRID_SIZE:
             if self.grid[prev_y][prev_x] != '4_way_red':
                 self.grid[prev_y][prev_x] = 'road'
 
