@@ -123,10 +123,6 @@ class AnalysisDisplay:
 
     def update(self, win):
         # Decrement the timer as long as the analysis phase is active and the timer has not reached zero
-        print('inside analysis display update')
-        print(f'self.countdown_timer: {self.countdown_timer}')
-        print(f'self.active: {self.active}')
-        print(f'self.phase_two_active: {self.phase_two_active}')
         if self.countdown_timer > 0 and self.active:
             self.countdown_timer -= 1
             self.draw(win)

@@ -46,6 +46,8 @@ class Simulation:
         - analysis_results (list): List of collision counts during the analysis phase.
         - analysis_results_ready (bool): Flag to indicate if the analysis results are ready to be displayed.
         - analytics (Analytics): The analytics object -- tracks collision rates, etc
+        - veh_ct (int): Total number of vehicles added to the simulation. (used for analytics)
+        - emveh_ct (int): Total number of emergency vehicles added to the simulation. (used for analytics)
         - paused (bool): Flag to indicate if the simulation is paused.
 
     Methods:
@@ -101,6 +103,8 @@ class Simulation:
         self.analysis_results = []
         self.analysis_results_ready = False
         self.analytics = Analytics()
+        self.veh_ct = 0
+        self.emveh_ct = 0
         self.paused = False
 
         # Add traffic lights to city grid data structure
@@ -135,6 +139,7 @@ class Simulation:
         # Analysis Mode
         if self.analysis_mode:
             self.update_analysis()
+            self.analytics.update(self.collision_count, self.intersection_manager.four_way_active, self.veh_ct, self.emveh_ct)
 
         # Remove off-screen vehicles
         vehicles_to_remove = [vehicle for vehicle in self.vehicles if vehicle.is_off_screen()]
@@ -168,6 +173,8 @@ class Simulation:
         if random.random() < FREQUENCY_OF_EVENTS / 5:
             x, y, direction, color = generate_emergency_vehicle()
             self.vehicles.append(EmergencyVehicle(x, y, direction, self.city))
+            self.emveh_ct += 1
+            print("Emergency Vehicle Added - Total: ", self.emveh_ct)
 
         # Check for collisions
         if len(self.vehicles) > 1:
@@ -306,7 +313,6 @@ class Simulation:
         """
         Record the current collision count during the analysis phase.
         """
-        print(f"self.collision_count: {self.collision_count}")
         self.analysis_results.append(str(self.collision_count))
         self.collision_count = 0
 
@@ -330,6 +336,18 @@ class Simulation:
         self.paused = True
         self.analysis_results_ready = True
         self.scoreboard.display_analysis_results(self.win, self.analysis_results)
+        print("Analysis Results:")
+        print("Total ERTS Cars: ", self.analytics.erts_car_count)
+        print("Total ERTS Emergencies: ", self.analytics.erts_emergency_count)
+        print(f"Total ERTS Vehicles: {self.analytics.erts_car_count + self.analytics.erts_emergency_count}")
+        print("ERTS Collision Rate: ", self.analytics.erts_collision_rate)
+        print("ERTS Weighted Collision Rate: ", self.analytics.erts_weighted_collision_rate)
+        print("--------------------------------")
+        print("Total No ERTS Cars: ", self.analytics.no_erts_car_count)
+        print("Total No ERTS Emergencies: ", self.analytics.no_erts_emergency_count)
+        print(f"Total No ERTS Vehicles: {self.analytics.no_erts_car_count + self.analytics.no_erts_emergency_count}")
+        print("No ERTS Collision Rate: ", self.analytics.no_erts_collision_rate)
+        print("No ERTS Weighted Collision Rate: ", self.analytics.no_erts_weighted_collision_rate)
 
     def add_vehicle(self, direction, x, y, color):
         """
@@ -347,9 +365,13 @@ class Simulation:
         if self.direction_count[direction] < 12 and self.intersection_manager.get_light_color(self.traffic_lights, light_coords[0] , light_coords[1]) == (0, 255, 0):
             self.direction_count[direction] += 1
             self.vehicles.append(Vehicle(x, y, direction, self.city, color))
+            self.veh_ct += 1
+            print("Vehicle Added - Total: ", self.veh_ct)
         elif self.direction_count[direction] < 4:
             self.direction_count[direction] += 1
             self.vehicles.append(Vehicle(x, y, direction, self.city, color))
+            self.veh_ct += 1
+            print("Vehicle Added - Total: ", self.veh_ct)
 
     def quit(self):
         """
