@@ -170,11 +170,10 @@ class Simulation:
             self.add_vehicle(direction, x, y, color)
 
         # Add new emergency vehicles
-        if random.random() < FREQUENCY_OF_EVENTS / 3:
+        if random.random() < FREQUENCY_OF_EVENTS / 5:
             x, y, direction, color = generate_emergency_vehicle()
             self.vehicles.append(EmergencyVehicle(x, y, direction, self.city))
             self.emveh_ct += 1
-            print("Emergency Vehicle Added - Total: ", self.emveh_ct)
 
         # Check for collisions
         if len(self.vehicles) > 1:
@@ -183,11 +182,10 @@ class Simulation:
             # Update ERTS collision counters for analysis display element
             if self.analysis_mode:
                 if self.analysis_display.phase_two_active:
-                    self.analytics.erts_collision_count = self.collision_count
-                    print("ERTS Collision Count: ", self.collision_count)
+                    self.analytics.erts_collision_count = self.collision_count        # Save to analytics object
                 else:
                     self.analytics.no_erts_collision_count = self.collision_count
-                    print("No ERTS Collision Count: ", self.collision_count)
+
 
         self.scoreboard.update_collision_count(self.collision_count)
 
@@ -223,9 +221,6 @@ class Simulation:
         
         # Draw the scoreboard or analysis results
         if self.analysis_results_ready:
-            print("Analysis Results Ready:")
-            print("self.analytics.erts_collision_count: ", self.analytics.erts_collision_count)
-            print("self.analytics.no_erts_collision_count: ", self.analytics.no_erts_collision_count)
             self.scoreboard.display_analysis_results(self.win, self.analytics)
         else:
             self.scoreboard.draw(self.win)
@@ -287,6 +282,28 @@ class Simulation:
                 if event.type == pg.QUIT:
                     self.quit()
 
+    def add_vehicle(self, direction, x, y, color):
+        """
+        Add a vehicle to the simulation.
+        
+        Args:
+            direction (str): The direction the vehicle is traveling.
+            x (int): The x-coordinate of the vehicle.
+            y (int): The y-coordinate of the vehicle.
+            color (tuple): The color of the vehicle.
+        """
+        # Determine direction to set higher limits when light is green
+        light_coords = (9, 10) if direction in ["N", "S"] else (10, 9)
+        
+        if self.direction_count[direction] < 12 and self.intersection_manager.get_light_color(self.traffic_lights, light_coords[0] , light_coords[1]) == (0, 255, 0):
+            self.direction_count[direction] += 1
+            self.vehicles.append(Vehicle(x, y, direction, self.city, color))
+            self.veh_ct += 1
+        elif self.direction_count[direction] < 4:
+            self.direction_count[direction] += 1
+            self.vehicles.append(Vehicle(x, y, direction, self.city, color))
+            self.veh_ct += 1
+
     def start_analysis(self):
         """
         Start the analysis mode, resetting the simulation and enabling analysis.
@@ -337,47 +354,10 @@ class Simulation:
         self.scoreboard.clearpath_enabled = False
         self.intersection_manager.deactivate_four_way_red()
         self.analysis_timer = 0
-        self.collision_count = 0    #### ORDER OF THINGS IS MESSING EVERYTHING UP
+        self.collision_count = 0
         self.paused = True
         self.analysis_results_ready = True
-        print("Analysis Results:")
-        print("Total ERTS Cars: ", self.analytics.erts_car_count)
-        print("ERTS Collision Count: ", self.analytics.erts_collision_count)
-        print("Total ERTS Emergencies: ", self.analytics.erts_emergency_count)
-        print(f"Total ERTS Vehicles: {self.analytics.erts_car_count + self.analytics.erts_emergency_count}")
-        print("ERTS Collision Rate: ", self.analytics.erts_collision_rate)
-        print("ERTS Weighted Collision Rate: ", self.analytics.erts_weighted_collision_rate)
-        print("--------------------------------")
-        print("Total No ERTS Cars: ", self.analytics.no_erts_car_count)
-        print("No ERTS Collision Count: ", self.analytics.no_erts_collision_count)
-        print("Total No ERTS Emergencies: ", self.analytics.no_erts_emergency_count)
-        print(f"Total No ERTS Vehicles: {self.analytics.no_erts_car_count + self.analytics.no_erts_emergency_count}")
-        print("No ERTS Collision Rate: ", self.analytics.no_erts_collision_rate)
-        print("No ERTS Weighted Collision Rate: ", self.analytics.no_erts_weighted_collision_rate)
-
-    def add_vehicle(self, direction, x, y, color):
-        """
-        Add a vehicle to the simulation.
-        
-        Args:
-            direction (str): The direction the vehicle is traveling.
-            x (int): The x-coordinate of the vehicle.
-            y (int): The y-coordinate of the vehicle.
-            color (tuple): The color of the vehicle.
-        """
-        # Determine direction to set higher limits when light is green
-        light_coords = (9, 10) if direction in ["N", "S"] else (10, 9)
-        
-        if self.direction_count[direction] < 12 and self.intersection_manager.get_light_color(self.traffic_lights, light_coords[0] , light_coords[1]) == (0, 255, 0):
-            self.direction_count[direction] += 1
-            self.vehicles.append(Vehicle(x, y, direction, self.city, color))
-            self.veh_ct += 1
-            print("Vehicle Added - Total: ", self.veh_ct)
-        elif self.direction_count[direction] < 4:
-            self.direction_count[direction] += 1
-            self.vehicles.append(Vehicle(x, y, direction, self.city, color))
-            self.veh_ct += 1
-            print("Vehicle Added - Total: ", self.veh_ct)
+        print(self.analytics.__repr__())
 
     def quit(self):
         """
