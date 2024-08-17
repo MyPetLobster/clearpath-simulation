@@ -278,6 +278,7 @@ class Simulation:
         """
         self.reset_simulation()
         self.analysis_mode = True
+        self.scoreboard.analysis_mode_active = True
         self.analysis_display.active = True
         self.analysis_display.update(self.win)
 
@@ -318,6 +319,7 @@ class Simulation:
         End the analysis phase and display the results.
         """
         self.analysis_mode = False
+        self.scoreboard.analysis_mode_active = False
         self.scoreboard.clearpath_enabled = False
         self.intersection_manager.deactivate_four_way_red()
         self.analysis_timer = 0

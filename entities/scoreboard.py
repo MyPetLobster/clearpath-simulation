@@ -8,6 +8,7 @@ class Scoreboard:
         self.start_time = pg.time.get_ticks()
         self.collision_count = 0
         self.clearpath_enabled = False
+        self.analysis_mode_active = False
 
     def update_collision_count(self, new_count):
         self.collision_count = new_count
@@ -37,16 +38,26 @@ class Scoreboard:
         collision_text = self.font.render(f"Collisions: {self.collision_count}", True, (255, 255, 255))
         win.blit(collision_text, (WIDTH - 8 * TILE_SIZE + 10, HEIGHT - 5.5 * TILE_SIZE))
 
-        instructions_text = self.font.render("Press 'c' to toggle ClearPath", True, (255, 255, 255))
-        win.blit(instructions_text, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 4 * TILE_SIZE))
-        instructions_text_2 = self.font.render("Press 'r' to reset sim.", True, (255, 255, 255))
-        win.blit(instructions_text_2, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 3.5 * TILE_SIZE))
-        instructions_text_3 = self.font.render("Press 'p' to pause sim.", True, (255, 255, 255))
-        win.blit(instructions_text_3, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 3 * TILE_SIZE))
-        instructions_text_4 = self.font.render("Press 'esc' to quit.", True, (255, 255, 255))
-        win.blit(instructions_text_4, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 2.5 * TILE_SIZE))
-        instructions_text_5 = self.font.render("Press 'a' to run 5 min analysis", True, (255, 255, 255))
-        win.blit(instructions_text_5, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 2 * TILE_SIZE))
+        if self.analysis_mode_active:
+            instructions_text_2 = self.font.render("Press 'r' to reset sim.", True, (255, 255, 255))
+            win.blit(instructions_text_2, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 3.5 * TILE_SIZE))
+            instructions_text_3 = self.font.render("Press 'p' to pause analysis.", True, (255, 255, 255))
+            win.blit(instructions_text_3, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 3 * TILE_SIZE))
+            instructions_text_4 = self.font.render("Press 'esc' to quit.", True, (255, 255, 255))
+            win.blit(instructions_text_4, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 2.5 * TILE_SIZE))
+            instructions_text_5 = self.font.render("Press 'a' to restart analysis", True, (255, 255, 255))
+            win.blit(instructions_text_5, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 2 * TILE_SIZE))
+        else:
+            instructions_text = self.font.render("Press 'c' to toggle ClearPath", True, (255, 255, 255))
+            win.blit(instructions_text, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 4 * TILE_SIZE))
+            instructions_text_2 = self.font.render("Press 'r' to reset sim.", True, (255, 255, 255))
+            win.blit(instructions_text_2, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 3.5 * TILE_SIZE))
+            instructions_text_3 = self.font.render("Press 'p' to pause sim.", True, (255, 255, 255))
+            win.blit(instructions_text_3, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 3 * TILE_SIZE))
+            instructions_text_4 = self.font.render("Press 'esc' to quit.", True, (255, 255, 255))
+            win.blit(instructions_text_4, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 2.5 * TILE_SIZE))
+            instructions_text_5 = self.font.render("Press 'a' to run 5 min analysis", True, (255, 255, 255))
+            win.blit(instructions_text_5, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 2 * TILE_SIZE))
 
     def display_analysis_results(self, win, analysis_results):
         """ A list with two elements: [collision_count_no_clearpath, collision_count_clearpath] """
