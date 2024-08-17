@@ -5,7 +5,7 @@ import sys
 from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS, CROSSWALK_TILES, ANALYSIS_PHASE_DURATION
 from city import CityGrid
 from helpers import draw_split_tile, collision_counter
-from entities.scoreboard import Scoreboard, Logo, ERTSLogo
+from entities.scoreboard import Scoreboard, Logo, ERTSLogo, AnalysisDisplay
 from entities.traffic_light import TrafficLight, IntersectionManager
 from entities.vehicle import Vehicle, EmergencyVehicle, generate_vehicle, generate_emergency_vehicle
 
@@ -93,6 +93,7 @@ class Simulation:
         self.scoreboard = Scoreboard()
         self.logo = Logo()
         self.erts_logo = ERTSLogo()
+        self.analysis_display = AnalysisDisplay()
         self.analysis_timer = 0
         self.analysis_mode = False
         self.analysis_results = []
@@ -169,6 +170,13 @@ class Simulation:
         if len(self.vehicles) > 1:
             self.collision_count = collision_counter(self.vehicles, self.collision_count, self.collision_pairs, self.collision_cooldown)
 
+            # Update ERTS collision counters for analysis display element
+            if self.analysis_mode:
+                if self.analysis_display.phase_two_active:
+                    self.analysis_display.erts_enabled_collision_count = self.collision_count
+                else:
+                    self.analysis_display.erts_disabled_collision_count = self.collision_count
+
         self.scoreboard.update_collision_count(self.collision_count)
 
         # Provide list of emergency vehicles to the city grid (used for 4-way look_both_ways())
@@ -212,6 +220,9 @@ class Simulation:
 
         # Draw ERTS logo below ClearPath logo, ACTIVE or INACTIVE
         self.erts_logo.draw(self.win, self.intersection_manager.four_way_active)
+        
+        if self.analysis_mode:
+            self.analysis_display.draw(self.win)
 
     # ---- Helper Methods ----
     def handle_keydown(self, event):
@@ -267,18 +278,25 @@ class Simulation:
         """
         self.reset_simulation()
         self.analysis_mode = True
+        self.analysis_display.active = True
+        self.analysis_display.update(self.win)
 
     def update_analysis(self):
         """
         Update the analysis phase by tracking collisions in both normal and ClearPath modes.
         """
+        self.analysis_display.update(self.win)
         self.analysis_timer += 1
         if self.analysis_timer == ANALYSIS_PHASE_DURATION:
             self.record_analysis_result()
             self.activate_clearpath()
+            self.analysis_display.phase_two_active = True
+            self.analysis_display.countdown_timer = ANALYSIS_PHASE_DURATION
         elif self.analysis_timer == ANALYSIS_PHASE_DURATION * 2:
             self.record_analysis_result()
             self.end_analysis()
+            self.analysis_display.active = False
+            self.analysis_display.phase_two_active = False
 
     def record_analysis_result(self):
         """

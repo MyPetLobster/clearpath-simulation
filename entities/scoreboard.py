@@ -1,5 +1,5 @@
 import pygame as pg
-from config import TILE_SIZE, WIDTH, HEIGHT
+from config import TILE_SIZE, WIDTH, HEIGHT, ANALYSIS_PHASE_DURATION
 
 class Scoreboard:
     def __init__(self):
@@ -49,14 +49,12 @@ class Scoreboard:
 
     def display_analysis_results(self, win, analysis_results):
         """ A list with two elements: [collision_count_no_clearpath, collision_count_clearpath] """
-        print("Displaying analysis results ****")
-        print(analysis_results)
         no_clearpath_collisions = analysis_results[0]
         clearpath_collisions = analysis_results[1]
 
         # Draw the background rectangle for the analysis results
         pg.draw.rect(win, (30, 30, 30), (WIDTH - 8 * TILE_SIZE, HEIGHT - 8 * TILE_SIZE, 7 * TILE_SIZE, 3.5 * TILE_SIZE), border_radius=10)
-        print("Drawing analysis results ****")
+
         # Render the analysis results
         instruction_text = self.font.render("Analysis Results", True, (255, 255, 255))
         win.blit(instruction_text, (WIDTH - 8 * TILE_SIZE + 10, HEIGHT - 7.5 * TILE_SIZE))
@@ -96,3 +94,48 @@ class ERTSLogo:
             win.blit(self.logo_active, (1 * TILE_SIZE, 5 * TILE_SIZE))
         else:
             win.blit(self.logo_inactive, (1 * TILE_SIZE, 5 * TILE_SIZE))
+
+
+
+class AnalysisDisplay:
+    def __init__(self):
+        self.font = pg.font.Font(None, 26)
+        self.big_font = pg.font.Font(None, 32)
+        self.countdown_timer = ANALYSIS_PHASE_DURATION
+        self.active = False
+        self.phase_two_active = False
+        self.erts_disabled_collision_count = 0
+        self.erts_enabled_collision_count = 0
+
+    def update(self, win):
+        # Decrement the timer as long as the analysis phase is active and the timer has not reached zero
+        print('inside analysis display update')
+        print(f'self.countdown_timer: {self.countdown_timer}')
+        print(f'self.active: {self.active}')
+        print(f'self.phase_two_active: {self.phase_two_active}')
+        if self.countdown_timer > 0 and self.active:
+            self.countdown_timer -= 1
+            self.draw(win)
+        else:
+            if self.phase_two_active:
+                self.phase_two_active = False
+                self.active = False
+                self.countdown_timer = ANALYSIS_PHASE_DURATION
+
+
+    def draw(self, win):
+        countdown_seconds = self.countdown_timer // 100
+        analysis_text = self.big_font.render("Running Analysis...", True, (255, 255, 255))
+        countdown_text = self.font.render(f"Time Remaining: {countdown_seconds} s", True, (255, 255, 255))
+        ERTS_disabled_collision_text = self.font.render(f"ERTS Disabled: {self.erts_disabled_collision_count} collisions", True, (255, 0, 0))
+        ERTS_enabled_collision_text = self.font.render(f"ERTS Enabled: {self.erts_enabled_collision_count} collisions", True, (0, 255, 0))
+
+        # Background rectangle for better visibility
+        win.blit(analysis_text, (WIDTH // 2 + 3 * TILE_SIZE + 40, TILE_SIZE * 4))
+        win.blit(countdown_text, (WIDTH // 2 + 3 * TILE_SIZE + 40, TILE_SIZE * 5))
+        win.blit(ERTS_disabled_collision_text, (WIDTH // 2 + 3 * TILE_SIZE + 40, TILE_SIZE * 6))
+        win.blit(ERTS_enabled_collision_text, (WIDTH // 2 + 3 * TILE_SIZE + 40, TILE_SIZE * 7))
+
+
+
+        
