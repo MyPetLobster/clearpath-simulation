@@ -246,6 +246,7 @@ class Simulation:
             self.quit()
         elif event.key == pg.K_c:
             self.toggle_clearpath()
+            self.collision_count = 0
         elif event.key == pg.K_r:
             self.reset_simulation()
         elif event.key == pg.K_p:
