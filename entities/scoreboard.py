@@ -3,7 +3,8 @@ from config import TILE_SIZE, WIDTH, HEIGHT, ANALYSIS_PHASE_DURATION
 
 class Scoreboard:
     def __init__(self):
-        self.font = pg.font.Font(None, 24)  # You can change the font size if needed
+        self.big_font = pg.font.Font(None, 32)
+        self.font = pg.font.Font(None, 24)  
         self.start_time = pg.time.get_ticks()
         self.collision_count = 0
         self.clearpath_enabled = False
@@ -53,22 +54,24 @@ class Scoreboard:
         clearpath_collisions = analysis_results[1]
 
         # Draw the background rectangle for the analysis results
-        pg.draw.rect(win, (30, 30, 30), (WIDTH - 8 * TILE_SIZE, HEIGHT - 8 * TILE_SIZE, 7 * TILE_SIZE, 3.5 * TILE_SIZE), border_radius=10)
+        # WIDTH // 2 + 3 * TILE_SIZE + 40, TILE_SIZE * 4)
+        # (WIDTH - 8 * TILE_SIZE, HEIGHT - 8 * TILE_SIZE, 7 * TILE_SIZE, 3.5 * TILE_SIZE)
+        pg.draw.rect(win, (30, 30, 30), (WIDTH // 2 + 3.5 * TILE_SIZE, 3 * TILE_SIZE, 8 * TILE_SIZE, 3.5 * TILE_SIZE), border_radius=10)
 
         # Render the analysis results
-        instruction_text = self.font.render("Analysis Results", True, (255, 255, 255))
-        win.blit(instruction_text, (WIDTH - 8 * TILE_SIZE + 10, HEIGHT - 7.5 * TILE_SIZE))
+        instruction_text = self.big_font.render("Analysis Results", True, (255, 255, 255))
+        win.blit(instruction_text, (WIDTH // 2 + 3.5 * TILE_SIZE + 25, 3.5 * TILE_SIZE))
 
-        no_clearpath_text = self.font.render(f"No ClearPath: {no_clearpath_collisions} collisions", True, (255, 0, 0))
-        win.blit(no_clearpath_text, (WIDTH - 8 * TILE_SIZE + 10, HEIGHT - 6.5 * TILE_SIZE))
+        no_clearpath_text = self.font.render(f"ERTS Inactive: {no_clearpath_collisions} collisions", True, (255, 0, 0))
+        win.blit(no_clearpath_text, (WIDTH // 2 + 3.5 * TILE_SIZE + 10, 4.5 * TILE_SIZE))
 
-        clearpath_text = self.font.render(f"ClearPath: {clearpath_collisions} collisions", True, (0, 255, 0))
-        win.blit(clearpath_text, (WIDTH - 8 * TILE_SIZE + 10, HEIGHT - 5.75 * TILE_SIZE))
+        clearpath_text = self.font.render(f"ERTS Active: {clearpath_collisions} collisions", True, (0, 255, 0))
+        win.blit(clearpath_text, (WIDTH // 2 + 3.5 * TILE_SIZE + 10, 5.5 * TILE_SIZE))
 
         instructions_text_2 = self.font.render("Press 'r' to reset sim.", True, (255, 255, 255))
-        win.blit(instructions_text_2, (WIDTH - 8 * TILE_SIZE + 10, HEIGHT - 4 * TILE_SIZE))
+        win.blit(instructions_text_2, (WIDTH - 8 * TILE_SIZE + 10, HEIGHT - 3 * TILE_SIZE))
         instructions_text_3 = self.font.render("Press 'esc' to quit.", True, (255, 255, 255))
-        win.blit(instructions_text_3, (WIDTH - 8 * TILE_SIZE + 10, HEIGHT - 3.5 * TILE_SIZE))
+        win.blit(instructions_text_3, (WIDTH - 8 * TILE_SIZE + 10, HEIGHT - 2.5 * TILE_SIZE))
 
 
 
@@ -131,10 +134,10 @@ class AnalysisDisplay:
         ERTS_enabled_collision_text = self.font.render(f"ERTS Enabled: {self.erts_enabled_collision_count} collisions", True, (0, 255, 0))
 
         # Background rectangle for better visibility
-        win.blit(analysis_text, (WIDTH // 2 + 3 * TILE_SIZE + 40, TILE_SIZE * 4))
-        win.blit(countdown_text, (WIDTH // 2 + 3 * TILE_SIZE + 40, TILE_SIZE * 5))
-        win.blit(ERTS_disabled_collision_text, (WIDTH // 2 + 3 * TILE_SIZE + 40, TILE_SIZE * 6))
-        win.blit(ERTS_enabled_collision_text, (WIDTH // 2 + 3 * TILE_SIZE + 40, TILE_SIZE * 7))
+        win.blit(analysis_text, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 3))
+        win.blit(countdown_text, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 4))
+        win.blit(ERTS_disabled_collision_text, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 5))
+        win.blit(ERTS_enabled_collision_text, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 6))
 
 
 
