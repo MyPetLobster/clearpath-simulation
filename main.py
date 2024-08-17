@@ -2,6 +2,7 @@ import pygame as pg
 import random
 import sys
 
+from analytics import Analytics
 from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS, CROSSWALK_TILES, ANALYSIS_PHASE_DURATION
 from city import CityGrid
 from helpers import draw_split_tile, collision_counter
@@ -44,6 +45,7 @@ class Simulation:
         - analysis_mode (bool): Flag to indicate if the simulation is in analysis mode.
         - analysis_results (list): List of collision counts during the analysis phase.
         - analysis_results_ready (bool): Flag to indicate if the analysis results are ready to be displayed.
+        - analytics (Analytics): The analytics object -- tracks collision rates, etc
         - paused (bool): Flag to indicate if the simulation is paused.
 
     Methods:
@@ -98,6 +100,7 @@ class Simulation:
         self.analysis_mode = False
         self.analysis_results = []
         self.analysis_results_ready = False
+        self.analytics = Analytics()
         self.paused = False
 
         # Add traffic lights to city grid data structure
