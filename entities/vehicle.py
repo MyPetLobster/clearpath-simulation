@@ -203,16 +203,18 @@ class Vehicle:
             bool: True if the vehicle is within range, False otherwise.
         """
         if self.direction == vehicle.direction:
-            in_range = (
-                (self.direction == "N" and self.y - 2 <= vehicle.y <= self.y + 5) or
-                (self.direction == "S" and self.y - 5 <= vehicle.y <= self.y + 2) or
-                (self.direction == "E" and self.x - 5 <= vehicle.x <= self.x + 2) or
-                (self.direction == "W" and self.x - 2 <= vehicle.x <= self.x + 5)
-            )
-            if in_range:
+            range_conditions = {
+                "N": lambda: self.y - 2 <= vehicle.y <= self.y + 5,
+                "S": lambda: self.y - 5 <= vehicle.y <= self.y + 2,
+                "E": lambda: self.x - 5 <= vehicle.x <= self.x + 2,
+                "W": lambda: self.x - 2 <= vehicle.x <= self.x + 5
+            }
+            
+            condition = range_conditions.get(self.direction)
+            if condition and condition():
                 return True
         return False
-
+    
     def pull_over(self):
         """
         Move the vehicle to the right side of the road if there's an emergency vehicle approaching.
