@@ -175,7 +175,7 @@ class AnalysisDisplay:
     Attributes:
         - font (Font): Font object for regular text
         - big_font (Font): Font object for large text
-        - countdown_timer (int): The time remaining in the analysis phase
+        - analysis_timer (int): The time remaining in the analysis phase
         - active (bool): Whether or not the analysis phase is active
         - phase_two_active (bool): Whether or not phase two of the simulation is active
         - erts_disabled_collision_count (int): The total number of collisions detected with ERTS inactive
@@ -189,14 +189,12 @@ class AnalysisDisplay:
     def __init__(self, analytics):
         self.font = pg.font.Font(None, 26)
         self.big_font = pg.font.Font(None, 32)
-        self.countdown_timer = ANALYSIS_PHASE_DURATION
-        self.active = False
-        self.phase_two_active = False
+        self.analysis_timer = 0
         self.erts_disabled_collision_count = 0
         self.erts_enabled_collision_count = 0
         self.analytics = analytics
 
-    def update(self, win):
+    def update(self, win, analysis_timer):
         """
         Update the analysis display with the latest data.
         
@@ -205,23 +203,23 @@ class AnalysisDisplay:
             
         Modifies:
             - countdown_timer (int): The time remaining in the analysis phase
-            - active (bool): Whether or not the analysis phase is active
-            - phase_two_active (bool): Whether or not phase two of the simulation is active
             - erts_disabled_collision_count (int): The total number of collisions detected with ERTS inactive
             - erts_enabled_collision_count (int): The total number of collisions detected with ERTS active
         """
         self.erts_disabled_collision_count = self.analytics.no_erts_collision_count
         self.erts_enabled_collision_count = self.analytics.erts_collision_count
+        self.analysis_timer = analysis_timer
+        self.draw(win)
 
         # Decrement the timer as long as the analysis phase is active and the timer has not reached zero
-        if self.countdown_timer > 0 and self.active:
-            self.countdown_timer -= 1
-            self.draw(win)
-        else:
-            if self.phase_two_active:
-                self.phase_two_active = False
-                self.active = False
-                self.countdown_timer = ANALYSIS_PHASE_DURATION
+        # if self.countdown_timer > 0 and self.active:
+        #     self.countdown_timer -= 1
+        #     self.draw(win)
+        # else:
+        #     if self.phase_two_active:
+        #         self.phase_two_active = False
+        #         self.active = False
+        #         self.countdown_timer = ANALYSIS_PHASE_DURATION
 
     def draw(self, win):
         """
@@ -229,15 +227,11 @@ class AnalysisDisplay:
         
         Args:
             - win (Surface): The pygame window to draw on.
-            
+
         Modifies:
-            - countdown_timer (int): The time remaining in the analysis phase
-            - active (bool): Whether or not the analysis phase is active
-            - phase_two_active (bool): Whether or not phase two of the simulation is active
-            - erts_disabled_collision_count (int): The total number of collisions detected with ERTS inactive
-            - erts_enabled_collision_count (int): The total number of collisions detected with ERTS active
+            - win (Surface): The pygame window with the analysis display drawn on it
         """
-        countdown_seconds = self.countdown_timer // 100
+        countdown_seconds = self.analysis_timer
         analysis_text = self.big_font.render("Running Analysis...", True, (255, 255, 255))
         countdown_text = self.font.render(f"Time Remaining: {countdown_seconds} s", True, (255, 255, 255))
         ERTS_disabled_collision_text = self.font.render(f"ERTS Disabled: {self.erts_disabled_collision_count} collisions", True, (255, 0, 0))

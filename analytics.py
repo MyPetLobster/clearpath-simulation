@@ -44,23 +44,23 @@ class Analytics:
                f"No ERTS Collision Rate: {self.no_erts_collision_rate}\n" \
                f"No ERTS Weighted Collision Rate: {self.no_erts_weighted_collision_rate}\n"
 
-    def update(self, collision_count, erts_active, car_count, emergency_count):
+    def update(self, collision_count, car_count, emergency_count, analysis_mode_active):
         """
         Update the analytics data with the latest collision data.
         
         Args:
             - collision_count (int): The total number of collisions detected.
-            - erts_active (bool): Whether or not ERTS is active.
             - car_count (int): The total number of cars in the simulation.
             - emergency_count (int): The total number of emergency vehicles in the simulation.
 
         Modifies:
             - All attributes of the class.
         """
-
+        if not analysis_mode_active:
+            return
+        
         weighted_collision_rates = list(self.calculate_weighted_collision_rates())
-        if erts_active:
-            self.phase_two_active = True
+        if self.phase_two_active:
             self.erts_collision_count = collision_count
             self.erts_car_count = car_count
             self.erts_emergency_count = emergency_count
@@ -68,13 +68,12 @@ class Analytics:
             self.erts_collision_rate = self.erts_collision_count / total_erts_vehicles if total_erts_vehicles > 0 else 0
             self.erts_weighted_collision_rate = weighted_collision_rates[0]
         else:
-            if not self.phase_two_active:
-                self.no_erts_collision_count = collision_count
-                self.no_erts_car_count = car_count
-                self.no_erts_emergency_count = emergency_count
-                total_no_erts_vehicles = self.no_erts_car_count + self.no_erts_emergency_count
-                self.no_erts_collision_rate = self.no_erts_collision_count / total_no_erts_vehicles if total_no_erts_vehicles > 0 else 0
-                self.no_erts_weighted_collision_rate = weighted_collision_rates[1]
+            self.no_erts_collision_count = collision_count
+            self.no_erts_car_count = car_count
+            self.no_erts_emergency_count = emergency_count
+            total_no_erts_vehicles = self.no_erts_car_count + self.no_erts_emergency_count
+            self.no_erts_collision_rate = self.no_erts_collision_count / total_no_erts_vehicles if total_no_erts_vehicles > 0 else 0
+            self.no_erts_weighted_collision_rate = weighted_collision_rates[1]
 
     def calculate_weighted_collision_rates(self):
         """

@@ -103,6 +103,7 @@ class Simulation:
         self.analysis_results_ready = False
         self.analytics = Analytics()
         self.analysis_display = AnalysisDisplay(self.analytics)
+        self.analysis_time_buffer = 0
         self.veh_ct = 0
         self.emveh_ct = 0
         self.paused = False
@@ -136,10 +137,11 @@ class Simulation:
         """
         Update the simulation state, including vehicle movements, traffic light changes, and collisions.
         """
+
         # Analysis Mode
         if self.analysis_mode:
             self.update_analysis()
-            self.analytics.update(self.collision_count, self.intersection_manager.four_way_active, self.veh_ct, self.emveh_ct)
+            self.analytics.update(self.collision_count, self.veh_ct, self.emveh_ct, self.analysis_mode)
 
         # Remove off-screen vehicles
         vehicles_to_remove = [vehicle for vehicle in self.vehicles if vehicle.is_off_screen()]
@@ -181,11 +183,10 @@ class Simulation:
 
             # Update ERTS collision counters for analysis display element
             if self.analysis_mode:
-                if self.analysis_display.phase_two_active:
+                if self.analytics.phase_two_active:
                     self.analytics.erts_collision_count = self.collision_count        # Save to analytics object
                 else:
                     self.analytics.no_erts_collision_count = self.collision_count
-
 
         self.scoreboard.update_collision_count(self.collision_count)
 
@@ -310,27 +311,32 @@ class Simulation:
         Start the analysis mode, resetting the simulation and enabling analysis.
         """
         self.reset_simulation()
+        self.analysis_time_buffer = pg.time.get_ticks()
         self.analysis_mode = True
         self.scoreboard.analysis_mode_active = True
-        self.analysis_display.active = True
-        self.analysis_display.update(self.win)
+        self.analysis_timer = ANALYSIS_PHASE_DURATION - (pg.time.get_ticks() - self.analysis_time_buffer) // 1000
+        self.analysis_display.update(self.win, self.analysis_timer)
 
     def update_analysis(self):
         """
         Update the analysis phase by tracking collisions in both normal and ClearPath modes.
         """
-        self.analysis_display.update(self.win)
-        self.analysis_timer += 1
-        if self.analysis_timer == ANALYSIS_PHASE_DURATION:
+        self.analysis_display.update(self.win, self.analysis_timer)
+
+        if self.analytics.phase_two_active:
+            self.analysis_timer = ANALYSIS_PHASE_DURATION * 2 - (pg.time.get_ticks() - self.analysis_time_buffer) // 1000
+        else:
+            self.analysis_timer = ANALYSIS_PHASE_DURATION - (pg.time.get_ticks() - self.analysis_time_buffer) // 1000
+
+        if self.analysis_timer <= 0 and not self.analytics.phase_two_active:
             self.record_analysis_result()
             self.activate_clearpath()
-            self.analysis_display.phase_two_active = True
-            self.analysis_display.countdown_timer = ANALYSIS_PHASE_DURATION
-        elif self.analysis_timer == ANALYSIS_PHASE_DURATION * 2:
+            self.analytics.phase_two_active = True
+        elif self.analysis_timer <= 0 and self.analytics.phase_two_active:
             self.record_analysis_result()
             self.end_analysis()
             self.analysis_display.active = False
-            self.analysis_display.phase_two_active = False
+            self.analytics.phase_two_active = False
 
     def record_analysis_result(self):
         """
@@ -358,7 +364,10 @@ class Simulation:
         self.collision_count = 0
         self.paused = True
         self.analysis_results_ready = True
+        print("----------------------------------------")
+        print("END OF ANALYSIS")
         print(self.analytics.__repr__())
+        print("----------------------------------------")
 
     def quit(self):
         """
