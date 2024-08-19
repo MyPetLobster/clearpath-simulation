@@ -3,7 +3,7 @@ import random
 import sys
 
 from analytics import Analytics
-from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS, CROSSWALK_TILES, ANALYSIS_PHASE_DURATION
+from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS, ANALYSIS_PHASE_DURATION
 from city import CityGrid
 from helpers import draw_split_tile, collision_counter
 from entities.scoreboard import Scoreboard, Logo, ERTSLogo, AnalysisDisplay
