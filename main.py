@@ -245,7 +245,7 @@ class Simulation:
         """
         if event.key == pg.K_ESCAPE:
             self.quit()
-        elif event.key == pg.K_c:
+        elif event.key == pg.K_e:
             self.toggle_clearpath()
             self.collision_count = 0
         elif event.key == pg.K_r:
