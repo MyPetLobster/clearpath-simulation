@@ -1,5 +1,5 @@
 import pygame as pg
-from config import TILE_SIZE, WIDTH, HEIGHT, ANALYSIS_PHASE_DURATION
+from config import TILE_SIZE, WIDTH, HEIGHT
 
 class Scoreboard:
     """
@@ -210,16 +210,6 @@ class AnalysisDisplay:
         self.erts_enabled_collision_count = self.analytics.erts_collision_count
         self.analysis_timer = analysis_timer
         self.draw(win)
-
-        # Decrement the timer as long as the analysis phase is active and the timer has not reached zero
-        # if self.countdown_timer > 0 and self.active:
-        #     self.countdown_timer -= 1
-        #     self.draw(win)
-        # else:
-        #     if self.phase_two_active:
-        #         self.phase_two_active = False
-        #         self.active = False
-        #         self.countdown_timer = ANALYSIS_PHASE_DURATION
 
     def draw(self, win):
         """
