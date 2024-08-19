@@ -74,7 +74,7 @@ class Scoreboard:
             win.blit(instructions_text_5, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 2 * TILE_SIZE))
         else:
             # Render the instructions text for base running simulation mode
-            instructions_text = self.font.render("Press 'c' to toggle ERTS", True, (255, 255, 255))
+            instructions_text = self.font.render("Press 'e' to toggle ERTS", True, (255, 255, 255))
             win.blit(instructions_text, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 4 * TILE_SIZE))
             instructions_text_2 = self.font.render("Press 'r' to reset sim.", True, (255, 255, 255))
             win.blit(instructions_text_2, (WIDTH - 9 * TILE_SIZE + 10, HEIGHT - 3.5 * TILE_SIZE))
