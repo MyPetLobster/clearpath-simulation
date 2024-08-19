@@ -185,7 +185,7 @@ class IntersectionManager:
         else:
             return CROSSWALK_TILES['NS']
 
-    def get_light_color(self,traffic_lights, x, y):
+    def get_light_color(self, traffic_lights, x, y):
         """
         Get the color of the light at a given position
 
@@ -197,17 +197,19 @@ class IntersectionManager:
         Returns:
             - color (tuple): RGB color of the light
         """
+        state_colors = {
+            'RED': RED_LIGHT,
+            'YELLOW': YELLOW_LIGHT,
+            'GREEN': GREEN_LIGHT
+        }
+
         for light in traffic_lights:
             if light.x == x and light.y == y:
-                if light.state == 'RED':
-                    return RED_LIGHT
-                elif light.state == 'YELLOW':
-                    return YELLOW_LIGHT
-                elif light.state == 'GREEN':
-                    return GREEN_LIGHT
-                elif light.state == '4_WAY_RED':
+                if light.state == '4_WAY_RED':
                     return light.active_color
-        return RED_LIGHT       # Fallback color, should never reach here
+                return state_colors.get(light.state, RED_LIGHT)
+        
+        return RED_LIGHT  # Fallback color, should never reach here
     
     def activate_four_way_red(self):
         """
