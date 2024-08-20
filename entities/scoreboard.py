@@ -95,7 +95,7 @@ class Scoreboard:
             - analytics (Analytics): The analytics object containing the results to display.
         """
         # Display the analysis results on the screen (top right quadrant)
-        analysis_text = self.big_font.render("Analysis Results", True, (255, 255, 255))
+        analysis_text = self.font.render("Analysis Results", True, (255, 255, 255))
         ERTS_disabled_vehicle_count = self.small_font.render(f"ERTS Disabled: {analytics.no_erts_car_count} vehicles generated", True, (255, 0, 0))
         ERTS_disabled_emergency_count = self.small_font.render(f"ERTS Disabled: {analytics.no_erts_emergency_count} emergencies", True, (255, 0, 0))
         ERTS_disabled_collision_text = self.small_font.render(f"ERTS Disabled: {analytics.no_erts_collision_count} collisions", True, (255, 0, 0))
@@ -103,25 +103,27 @@ class Scoreboard:
         ERTS_disabled_avg_weighted_collision_rate = self.small_font.render(f"ERTS Disabled: {analytics.no_erts_avg_weighted_collision_rate:.3f} avg weighted rate", True, (255, 0, 0))
         ERTS_enabled_vehicle_count = self.small_font.render(f"ERTS Enabled: {analytics.erts_car_count} vehicles generated", True, (0, 255, 0))
         ERTS_enabled_emergency_count = self.small_font.render(f"ERTS Enabled: {analytics.erts_emergency_count} emergencies", True, (0, 255, 0))
-        ERTS_enabled_collision_text = self.small_font.render(f"ERTS Enabled: {analytics.erts_collision_count} collisions", True, (0, 255, 0))
+        ERTS_enabled_collision_count = self.small_font.render(f"ERTS Enabled: {analytics.erts_collision_count} collisions", True, (0, 255, 0))
         ERTS_collision_rate = self.small_font.render(f"ERTS Enabled: {analytics.erts_collision_rate:.3f} collision rate", True, (0, 255, 0))
         ERTS_base_weighted_collision_rate = self.small_font.render(f"ERTS Enabled: {analytics.erts_base_weighted_collision_rate:.3f} base weighted rate", True, (0, 255, 0))
         ERTS_avg_weighted_collision_rate = self.small_font.render(f"ERTS Enabled: {analytics.erts_avg_weighted_collision_rate:.3f} avg weighted rate", True, (0, 255, 0))
+        ERTS_extrapolated_collisions = self.small_font.render(f"ERTS Enabled: {analytics.erts_extrapolated_collisions} extrapolated collisions", True, (0, 255, 0)) 
         info_text = self.tiny_font.render("* see README for info about weight calculations", True, (255, 255, 255))
 
-        win.blit(analysis_text, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 1))
-        win.blit(ERTS_disabled_vehicle_count, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 2))
-        win.blit(ERTS_disabled_emergency_count, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 2.6))
-        win.blit(ERTS_disabled_collision_text, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 3.2))
-        win.blit(ERTS_disabled_collision_rate, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 3.8))
-        win.blit(ERTS_disabled_avg_weighted_collision_rate, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 4.4))
-        win.blit(ERTS_enabled_vehicle_count, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 5.4))
-        win.blit(ERTS_enabled_emergency_count, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 6))
-        win.blit(ERTS_enabled_collision_text, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 6.6))
-        win.blit(ERTS_collision_rate, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 7.2))
-        win.blit(ERTS_base_weighted_collision_rate, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 7.8))
-        win.blit(ERTS_avg_weighted_collision_rate, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 8.4))
-        win.blit(info_text, (WIDTH // 2 + 2.75 * TILE_SIZE, TILE_SIZE * 9.4))
+        win.blit(analysis_text, (WIDTH // 2 + 5 * TILE_SIZE, TILE_SIZE * 0.3))
+        win.blit(ERTS_disabled_vehicle_count, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 1.2))
+        win.blit(ERTS_disabled_emergency_count, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 1.8))
+        win.blit(ERTS_disabled_collision_text, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 2.4))
+        win.blit(ERTS_disabled_collision_rate, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 3))
+        win.blit(ERTS_disabled_avg_weighted_collision_rate, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 3.6))
+        win.blit(ERTS_enabled_vehicle_count, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 4.6))
+        win.blit(ERTS_enabled_emergency_count, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 5.2))
+        win.blit(ERTS_enabled_collision_count, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 5.8))
+        win.blit(ERTS_collision_rate, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 6.4))
+        win.blit(ERTS_base_weighted_collision_rate, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 7))
+        win.blit(ERTS_avg_weighted_collision_rate, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 7.6))
+        win.blit(ERTS_extrapolated_collisions, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 8.2))
+        win.blit(info_text, (WIDTH // 2 + 2.75 * TILE_SIZE, TILE_SIZE * 9.2))
 
         # Modify the control instructions at end of analysis (bottom right quadrant)
         instructions_text_2 = self.font.render("Press 'r' to reset sim.", True, (255, 255, 255))
@@ -226,9 +228,13 @@ class AnalysisDisplay:
         Modifies:
             - win (Surface): The pygame window with the analysis display drawn on it
         """
-        countdown_seconds = self.analysis_timer
+        countdown_minutes = self.analysis_timer // 60
+        countdown_seconds = self.analysis_timer % 60
         analysis_text = self.big_font.render("Running Analysis...", True, (255, 255, 255))
-        countdown_text = self.font.render(f"Time Remaining: {countdown_seconds} s", True, (255, 255, 255))
+        if countdown_minutes == 0:
+            countdown_text = self.font.render(f"Time Remaining: {countdown_seconds}s", True, (255, 255, 255))
+        else:
+            countdown_text = self.font.render(f"Time Remaining: {countdown_minutes}m {countdown_seconds}s", True, (255, 255, 255))
         ERTS_disabled_collision_text = self.font.render(f"ERTS Disabled: {self.erts_disabled_collision_count} collisions", True, (255, 0, 0))
         ERTS_enabled_collision_text = self.font.render(f"ERTS Enabled: {self.erts_enabled_collision_count} collisions", True, (0, 255, 0))
 
