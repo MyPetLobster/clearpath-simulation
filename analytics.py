@@ -29,7 +29,6 @@ class Analytics:
         self.no_erts_car_count = 0
         self.no_erts_emergency_count = 0
         self.no_erts_collision_rate = 0
-        self.no_erts_weighted_collision_rate = 0
         self.phase_two_active = False
 
     def __repr__(self):
@@ -41,8 +40,7 @@ class Analytics:
                f"No ERTS Collision Count: {self.no_erts_collision_count}\n" \
                f"No ERTS Car Count: {self.no_erts_car_count}\n" \
                f"No ERTS Emergency Count: {self.no_erts_emergency_count}\n" \
-               f"No ERTS Collision Rate: {self.no_erts_collision_rate}\n" \
-               f"No ERTS Weighted Collision Rate: {self.no_erts_weighted_collision_rate}\n"
+               f"No ERTS Collision Rate: {self.no_erts_collision_rate}\n" 
 
     def update(self, collision_count, car_count, emergency_count, analysis_mode_active):
         """
@@ -59,42 +57,29 @@ class Analytics:
         if not analysis_mode_active:
             return
         
-        weighted_collision_rates = list(self.calculate_weighted_collision_rates())
         if self.phase_two_active:
             self.erts_collision_count = collision_count
             self.erts_car_count = car_count
             self.erts_emergency_count = emergency_count
-            total_erts_vehicles = self.erts_car_count + self.erts_emergency_count
-            self.erts_collision_rate = self.erts_collision_count / total_erts_vehicles if total_erts_vehicles > 0 else 0
-            self.erts_weighted_collision_rate = weighted_collision_rates[0]
+            self.erts_collision_rate = self.erts_collision_count / self.erts_emergency_count if self.erts_emergency_count > 0 else 0
+            self.erts_weighted_collision_rate = self.calculate_weighted_collision_rate()
         else:
             self.no_erts_collision_count = collision_count
             self.no_erts_car_count = car_count
             self.no_erts_emergency_count = emergency_count
-            total_no_erts_vehicles = self.no_erts_car_count + self.no_erts_emergency_count
-            self.no_erts_collision_rate = self.no_erts_collision_count / total_no_erts_vehicles if total_no_erts_vehicles > 0 else 0
-            self.no_erts_weighted_collision_rate = weighted_collision_rates[1]
-
-    def calculate_weighted_collision_rates(self):
+            self.no_erts_collision_rate = self.no_erts_collision_count / self.no_erts_emergency_count if self.no_erts_emergency_count > 0 else 0
+            
+    def calculate_weighted_collision_rate(self):
         """
-        Calculate the weighted collision rates for ERTS and non-ERTS vehicles.
+        Calculate the weighted collision rate for ERTS vehicles.
 
         Returns:
-            - tuple: A tuple containing the weighted collision rates for ERTS and non-ERTS vehicles.
+            float: The weighted collision rate for ERTS vehicles.
         """
-        # Ensure there's no division by zero
-        if self.erts_car_count + self.erts_emergency_count == 0 or self.no_erts_car_count + self.no_erts_emergency_count == 0:
-            return 0.0, 0.0
-        
-        # Calculate total vehicles in each phase
-        total_erts_vehicles = self.erts_car_count + self.erts_emergency_count
-        total_no_erts_vehicles = self.no_erts_car_count + self.no_erts_emergency_count
+        weighting_numerator = (self.no_erts_emergency_count / self.erts_emergency_count) if self.erts_emergency_count > 0 else 0
+        weighting_denominator = (self.no_erts_car_count / self.erts_car_count) if self.erts_car_count > 0 else 0
+        weighting_factor = weighting_numerator / weighting_denominator if weighting_denominator > 0 else 1
+        erts_weighted_collision_rate = self.erts_collision_rate * weighting_factor
 
-        # Calculate weighting factor
-        weighting_factor = total_no_erts_vehicles / total_erts_vehicles
 
-        # Calculate weighted collision rates
-        self.erts_weighted_collision_rate = self.erts_collision_rate * weighting_factor
-        self.no_erts_weighted_collision_rate = self.no_erts_collision_rate  # No need to adjust this as it's the baseline
-
-        return self.erts_weighted_collision_rate, self.no_erts_weighted_collision_rate
+        return erts_weighted_collision_rate

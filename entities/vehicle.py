@@ -372,7 +372,7 @@ class EmergencyVehicle(Vehicle):
     """
     def __init__(self, x, y, direction, city, color=(255,255,255)):
         super().__init__(x, y, direction, city, color)      # initialize the vehicle with the same attributes
-        self.speed = random.uniform(0.7, 0.9) * VEHICLE_BASE_SPEED    # increase the speed of the emergency vehicle
+        self.speed = random.uniform(0.7, 1.2) * VEHICLE_BASE_SPEED    # increase the speed of the emergency vehicle
 
 
     def check_ahead(self):
