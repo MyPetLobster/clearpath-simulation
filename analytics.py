@@ -24,11 +24,13 @@ class Analytics:
         self.erts_car_count = 0
         self.erts_emergency_count = 0
         self.erts_collision_rate = 0
-        self.erts_weighted_collision_rate = 0
+        self.erts_base_weighted_collision_rate = 0
+        self.erts_avg_weighted_collision_rate = 0
         self.no_erts_collision_count = 0
         self.no_erts_car_count = 0
         self.no_erts_emergency_count = 0
         self.no_erts_collision_rate = 0
+        self.no_erts_avg_weighted_collision_rate = 0
         self.phase_two_active = False
 
     def __repr__(self):
@@ -36,11 +38,13 @@ class Analytics:
                f"ERTS Car Count: {self.erts_car_count}\n" \
                f"ERTS Emergency Count: {self.erts_emergency_count}\n" \
                f"ERTS Collision Rate: {self.erts_collision_rate}\n" \
-               f"ERTS Weighted Collision Rate: {self.erts_weighted_collision_rate}\n" \
+               f"ERTS Weighted Collision Rate: {self.erts_base_weighted_collision_rate}\n" \
+               f"ERTS Avg Weighted Collision Rate: {self.erts_avg_weighted_collision_rate}\n" \
                f"No ERTS Collision Count: {self.no_erts_collision_count}\n" \
                f"No ERTS Car Count: {self.no_erts_car_count}\n" \
                f"No ERTS Emergency Count: {self.no_erts_emergency_count}\n" \
-               f"No ERTS Collision Rate: {self.no_erts_collision_rate}\n" 
+               f"No ERTS Collision Rate: {self.no_erts_collision_rate}\n" \
+               f"No ERTS Avg Weighted Collision Rate: {self.no_erts_avg_weighted_collision_rate}\n"
 
     def update(self, collision_count, car_count, emergency_count, analysis_mode_active):
         """
@@ -61,14 +65,21 @@ class Analytics:
             self.erts_collision_count = collision_count
             self.erts_car_count = car_count
             self.erts_emergency_count = emergency_count
-            self.erts_collision_rate = self.erts_collision_count / self.erts_emergency_count if self.erts_emergency_count > 0 else 0
-            self.erts_weighted_collision_rate = self.calculate_weighted_collision_rate()
         else:
             self.no_erts_collision_count = collision_count
             self.no_erts_car_count = car_count
             self.no_erts_emergency_count = emergency_count
-            self.no_erts_collision_rate = self.no_erts_collision_count / self.no_erts_emergency_count if self.no_erts_emergency_count > 0 else 0
-            
+            # self.no_erts_collision_rate = self.no_erts_collision_count / self.no_erts_emergency_count if self.no_erts_emergency_count > 0 else 0
+
+
+    def finalize_analysis(self):
+        self.erts_collision_rate = self.erts_collision_count / self.erts_emergency_count if self.erts_emergency_count > 0 else 0
+        self.erts_base_weighted_collision_rate = self.calculate_weighted_collision_rate()
+        self.erts_avg_weighted_collision_rate = self.calculate_avg_weighted_collision_rate(self.erts_emergency_count, self.erts_car_count, self.erts_collision_rate)
+        self.no_erts_collision_rate = self.no_erts_collision_count / self.no_erts_emergency_count if self.no_erts_emergency_count > 0 else 0
+        self.no_erts_avg_weighted_collision_rate = self.calculate_avg_weighted_collision_rate(self.no_erts_emergency_count, self.no_erts_car_count, self.no_erts_collision_rate)
+
+        
     def calculate_weighted_collision_rate(self):
         """
         Calculate the weighted collision rate for ERTS vehicles.
@@ -83,3 +94,16 @@ class Analytics:
 
 
         return erts_weighted_collision_rate
+    
+
+    def calculate_avg_weighted_collision_rate(self, emergency_count, car_count, collision_rate):
+
+        avg_emergency_count = (self.no_erts_emergency_count + self.erts_emergency_count) / 2
+        avg_car_count = (self.no_erts_car_count + self.erts_car_count) / 2
+
+        weighting_numerator = avg_emergency_count / emergency_count if emergency_count > 0 else 0
+        weighting_denominator = avg_car_count / car_count if car_count > 0 else 0
+        weighting_factor = weighting_numerator / weighting_denominator if weighting_denominator > 0 else 1
+        avg_weighted_collision_rate = collision_rate * weighting_factor
+
+        return avg_weighted_collision_rate

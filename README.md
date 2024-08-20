@@ -87,11 +87,26 @@ The analysis mode will display the following results for each mode:
 - Total number of emergency vehicles generated.
 - Total number of collisions that occurred.
 - Collision frequency per vehicle.
-- Weighted collision frequency based on the number of vehicles and emergency vehicles generated.
+- Average Weighted Collision Frequency.
+- Base Weighted Collision Frequency (ERTS Active only)
 
-The weighted collision frequency is calculated as follows:
+### Weight Calculations Explained 
+
+The weighting calculations in this analysis aim to provide a fair comparison between ERTS and no-ERTS scenarios by accounting for differences in vehicle distributions. The base weighted collision rate for ERTS adjusts for differences in the ratio of emergency vehicles to cars between the two phases. This helps compensate for any imbalance in how frequently emergency vehicles appear relative to regular traffic. The average weighted collision rates for both ERTS and no-ERTS use the mean number of vehicles across both phases as a baseline. Each phase's collision rate is then adjusted based on how its specific vehicle counts deviate from this average. This method ensures that both phases are compared against a common standard, accounting for any variations in overall traffic volume or emergency vehicle frequency. These weighted rates provide a more nuanced view of the effectiveness of the ERTS system by normalizing the data and reducing the impact of random variations in vehicle generation between the two phases.
+
+The formulas for calculating the weighted collision rates are as follows: 
 
 ```
-erts_weighted_collision_rate = erts_collision_rate * weighting_factor
+base_weight_factor = (no_erts_emergency_ct / erts_emergency_ct) / (no_erts_civilian_ct / erts_civilian_ct)
+erts_base_weighted_rate = ERTSCollisionRate * BaseWeightFactor
+
+average_civilian_ct = (no_erts_civilian_ct + erts_civilian_ct) / 2
+average_emergency_ct = (no_erts_emergency_ct + erts_emergency_ct) / 2
+
+no_erts_weight_factor = (average_emergency_ct / no_erts_emergency_ct) / (average_civilian_ct / no_erts_civilian_ct)
+erts_weight_factor = (average_emergency_ct / erts_emergency_ct) / (average_civilian_ct / erts_civilian_ct)
+
+no_erts_avg_weighted_rate = no_erts_collision_rate * no_erts_weight_factor
+erts_avg_weighted_rate = erts_collision_rate * erts_weight_factor
 ```
 

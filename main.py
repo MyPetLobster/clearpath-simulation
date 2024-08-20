@@ -222,6 +222,7 @@ class Simulation:
         
         # Draw the scoreboard or analysis results
         if self.analysis_results_ready:
+            self.analytics.finalize_analysis()
             self.scoreboard.display_analysis_results(self.win, self.analytics)
         else:
             self.scoreboard.draw(self.win)
