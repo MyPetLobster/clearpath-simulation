@@ -121,7 +121,7 @@ class Scoreboard:
         win.blit(ERTS_collision_rate, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 7.2))
         win.blit(ERTS_base_weighted_collision_rate, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 7.8))
         win.blit(ERTS_avg_weighted_collision_rate, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 8.4))
-        win.blit(info_text, (WIDTH // 2 + 2.25 * TILE_SIZE, TILE_SIZE * 9.4))
+        win.blit(info_text, (WIDTH // 2 + 2.75 * TILE_SIZE, TILE_SIZE * 9.4))
 
         # Modify the control instructions at end of analysis (bottom right quadrant)
         instructions_text_2 = self.font.render("Press 'r' to reset sim.", True, (255, 255, 255))

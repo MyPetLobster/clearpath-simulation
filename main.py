@@ -43,7 +43,6 @@ class Simulation:
         - erts_logo (ERTSLogo): The ERTS logo object.
         - analysis_timer (int): Timer to track the analysis phase.
         - analysis_mode (bool): Flag to indicate if the simulation is in analysis mode.
-        - analysis_results (list): List of collision counts during the analysis phase.
         - analysis_results_ready (bool): Flag to indicate if the analysis results are ready to be displayed.
         - analytics (Analytics): The analytics object -- tracks collision rates, etc
         - veh_ct (int): Total number of vehicles added to the simulation. (used for analytics)
@@ -99,7 +98,6 @@ class Simulation:
         self.erts_logo = ERTSLogo()
         self.analysis_timer = 0
         self.analysis_mode = False
-        self.analysis_results = []
         self.analysis_results_ready = False
         self.analytics = Analytics()
         self.analysis_display = AnalysisDisplay(self.analytics)
@@ -343,8 +341,11 @@ class Simulation:
         """
         Record the current collision count during the analysis phase.
         """
-        self.analysis_results.append(str(self.collision_count))
+        self.analytics.update(self.collision_count, self.veh_ct, self.emveh_ct, self.analysis_mode)
+        print(self.analytics.__repr__())
         self.collision_count = 0
+        self.veh_ct = 0
+        self.emveh_ct = 0
 
     def activate_clearpath(self):
         """
