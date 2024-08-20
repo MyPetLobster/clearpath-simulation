@@ -1,3 +1,8 @@
+import json
+import os
+from datetime import datetime
+from config import ANALYSIS_PHASE_DURATION
+
 class Analytics:
     """
     Class for storing and updating analytics data when operating in analysis mode.
@@ -26,11 +31,13 @@ class Analytics:
         self.erts_collision_rate = 0
         self.erts_base_weighted_collision_rate = 0
         self.erts_avg_weighted_collision_rate = 0
+        self.erts_extrapolated_collisions = 0
         self.no_erts_collision_count = 0
         self.no_erts_car_count = 0
         self.no_erts_emergency_count = 0
         self.no_erts_collision_rate = 0
         self.no_erts_avg_weighted_collision_rate = 0
+        self.no_erts_extrapolated_collisions = 0
         self.phase_two_active = False
 
     def __repr__(self):
@@ -78,7 +85,10 @@ class Analytics:
         self.erts_avg_weighted_collision_rate = self.calculate_avg_weighted_collision_rate(self.erts_emergency_count, self.erts_car_count, self.erts_collision_rate)
         self.no_erts_collision_rate = self.no_erts_collision_count / self.no_erts_emergency_count if self.no_erts_emergency_count > 0 else 0
         self.no_erts_avg_weighted_collision_rate = self.calculate_avg_weighted_collision_rate(self.no_erts_emergency_count, self.no_erts_car_count, self.no_erts_collision_rate)
+        extrapolation_factor = self.no_erts_car_count / self.erts_car_count if self.erts_car_count > 0 else 0
+        self.erts_extrapolated_collisions = self.erts_collision_count * extrapolation_factor
 
+        self.export_to_json()
         
     def calculate_weighted_collision_rate(self):
         """
@@ -107,3 +117,58 @@ class Analytics:
         avg_weighted_collision_rate = collision_rate * weighting_factor
 
         return avg_weighted_collision_rate
+    
+    def export_to_json(self):
+        """
+        Export the analytics data to a JSON file.
+
+        Returns:
+            str: The filename of the exported JSON file.
+        """
+        # create export dir if it doesn't exist
+        if not os.path.exists("exports"):
+            os.makedirs("exports")
+
+        export_dict = self.create_export_dict()
+        current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        filename = f"exports/analytics-{current_datetime}.json"
+
+        with open(filename, "w") as file:
+            json.dump(export_dict, file, indent=4)
+
+        return filename
+    
+
+    def create_export_dict(self):
+        """
+        Export the analytics data to a JSON file.
+
+        Returns:
+            
+        """
+        current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        minutes = ANALYSIS_PHASE_DURATION // 60
+        seconds = ANALYSIS_PHASE_DURATION % 60
+        runtime = f"{minutes} minutes, {seconds} seconds"
+
+        return {
+            f"Analysis Data - {current_datetime}": {
+                "Runtime": runtime,
+                "ERTS - Inactive": {
+                    "Collision Count": self.no_erts_collision_count,
+                    "Car Count": self.no_erts_car_count,
+                    "Emergency Count": self.no_erts_emergency_count,
+                    "Collision Rate": self.no_erts_collision_rate,
+                    "Avg Weighted Collision Rate": self.no_erts_avg_weighted_collision_rate
+                },
+                "ERTS - Active": {
+                    "Collision Count": self.erts_collision_count,
+                    "Car Count": self.erts_car_count,
+                    "Emergency Count": self.erts_emergency_count,
+                    "Collision Rate": self.erts_collision_rate,
+                    "Base Weighted Collision Rate": self.erts_base_weighted_collision_rate,
+                    "Avg Weighted Collision Rate": self.erts_avg_weighted_collision_rate,
+                    "Extrapolated Collision Count": self.erts_extrapolated_collisions
+                }
+            }
+        }
