@@ -316,7 +316,9 @@ class Simulation:
         Start the analysis mode, resetting the simulation and enabling analysis.
         """
         self.reset_simulation()
-        self.analysis_settings.get_analysis_settings(self.win)
+        good_to_go = self.analysis_settings.get_analysis_settings(self.win)
+        if not good_to_go:
+            return
         phase_duration = self.analysis_settings.analysis_time
         self.analytics.phase_duration = phase_duration
         self.analysis_phase_duration = phase_duration

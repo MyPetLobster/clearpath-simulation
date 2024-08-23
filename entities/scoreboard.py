@@ -288,6 +288,7 @@ class AnalysisSettings:
             export_instructions_2 = self.small_font.render("**Results will be saved to 'exports/analytics-<DATETIME>.json", True, (150, 150, 150))
             reset_text = self.font.render("Press 'a' to reset settings", True, (255, 255, 255))
             start_text = self.font.render("Press 's' or 'Enter' to start analysis", True, (255, 255, 255))
+            cancel_text = self.font.render("Press 'esc' return to base sim", True, (255, 255, 255))
             win.blit(analysis_text, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 10))
             win.blit(analysis_time_text, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 11))
             win.blit(analysis_time_instructions, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 11.5))
@@ -297,6 +298,7 @@ class AnalysisSettings:
             win.blit(export_instructions_2, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 14))
             win.blit(reset_text, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 15))
             win.blit(start_text, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 16))
+            win.blit(cancel_text, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 17))
             pg.display.flip()
 
             for event in pg.event.get():
@@ -317,12 +319,15 @@ class AnalysisSettings:
                     if event.key == pg.K_a:
                         self.analysis_time = 300
                         self.export_results = True
+                    if event.key == pg.K_ESCAPE or event.key == pg.K_q:
+                        running = False
+                        return False
                     if event.key == pg.K_s or event.key == pg.K_RETURN:
                         running = False
-                        return
+                        return True
                 if self.analysis_time < 30:
                     self.analysis_time = 30
                 if self.analysis_time > 43200:
                     self.analysis_time = 43200
-        return
+        return True
     
