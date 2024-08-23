@@ -107,7 +107,7 @@ class Scoreboard:
         ERTS_collision_rate = self.small_font.render(f"ERTS Enabled: {analytics.erts_collision_rate:.3f} collision rate", True, (0, 255, 0))
         ERTS_base_weighted_collision_rate = self.small_font.render(f"ERTS Enabled: {analytics.erts_base_weighted_collision_rate:.3f} base weighted rate", True, (0, 255, 0))
         ERTS_avg_weighted_collision_rate = self.small_font.render(f"ERTS Enabled: {analytics.erts_avg_weighted_collision_rate:.3f} avg weighted rate", True, (0, 255, 0))
-        ERTS_extrapolated_collisions = self.small_font.render(f"ERTS Enabled: {analytics.erts_extrapolated_collisions} extrapolated collisions", True, (0, 255, 0)) 
+        ERTS_extrapolated_collisions = self.small_font.render(f"ERTS Enabled: {analytics.erts_extrapolated_collisions:.3f} extrapolated collisions", True, (0, 255, 0)) 
         info_text = self.tiny_font.render("* see README for info about weight calculations", True, (255, 255, 255))
 
         win.blit(analysis_text, (WIDTH // 2 + 5 * TILE_SIZE, TILE_SIZE * 0.3))
