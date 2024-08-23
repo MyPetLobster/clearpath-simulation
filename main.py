@@ -242,14 +242,14 @@ class Simulation:
         Args:
             event (Event): The pygame event object.
         """
-        if event.key == pg.K_ESCAPE:
+        if event.key == pg.K_ESCAPE or event.key == pg.K_q:
             self.quit()
         elif event.key == pg.K_e:
             self.toggle_clearpath()
             self.collision_count = 0
         elif event.key == pg.K_r:
             self.reset_simulation()
-        elif event.key == pg.K_p:
+        elif event.key == pg.K_p or event.key == pg.K_SPACE:
             self.toggle_pause()
         elif event.key == pg.K_a:
             self.start_analysis()
