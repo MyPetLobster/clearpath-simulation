@@ -1,7 +1,6 @@
 import json
 import os
 from datetime import datetime
-from config import ANALYSIS_PHASE_DURATION
 
 class Analytics:
     """
@@ -38,6 +37,7 @@ class Analytics:
         self.no_erts_collision_rate = 0
         self.no_erts_avg_weighted_collision_rate = 0
         self.no_erts_extrapolated_collisions = 0
+        self.phase_duration = 0
         self.phase_two_active = False
 
     def __repr__(self):
@@ -79,7 +79,7 @@ class Analytics:
             # self.no_erts_collision_rate = self.no_erts_collision_count / self.no_erts_emergency_count if self.no_erts_emergency_count > 0 else 0
 
 
-    def finalize_analysis(self):
+    def finalize_analysis(self, export=True):
         self.erts_collision_rate = self.erts_collision_count / self.erts_emergency_count if self.erts_emergency_count > 0 else 0
         self.erts_base_weighted_collision_rate = self.calculate_weighted_collision_rate()
         self.erts_avg_weighted_collision_rate = self.calculate_avg_weighted_collision_rate(self.erts_emergency_count, self.erts_car_count, self.erts_collision_rate)
@@ -88,7 +88,8 @@ class Analytics:
         extrapolation_factor = self.no_erts_car_count / self.erts_car_count if self.erts_car_count > 0 else 0
         self.erts_extrapolated_collisions = self.erts_collision_count * extrapolation_factor
 
-        self.export_to_json()
+        if export:
+            self.export_to_json()
         
     def calculate_weighted_collision_rate(self):
         """
@@ -147,8 +148,8 @@ class Analytics:
             
         """
         current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        minutes = ANALYSIS_PHASE_DURATION // 60
-        seconds = ANALYSIS_PHASE_DURATION % 60
+        minutes = self.phase_duration // 60
+        seconds = self.phase_duration % 60
         runtime = f"{minutes} minutes, {seconds} seconds"
 
         return {

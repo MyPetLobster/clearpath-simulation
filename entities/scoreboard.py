@@ -244,6 +244,75 @@ class AnalysisDisplay:
         win.blit(ERTS_disabled_collision_text, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 5))
         win.blit(ERTS_enabled_collision_text, (WIDTH // 2 + 3 * TILE_SIZE, TILE_SIZE * 6))
 
+class AnalysisSettings:
+    """
+    Class to get user input for analysis settings before running the analysis.
+    """
 
+    def __init__(self):
+        self.small_font = pg.font.Font(None, 20)
+        self.font = pg.font.Font(None, 26)
+        self.big_font = pg.font.Font(None, 32)
+        self.analysis_time = 300
+        self.export_results = True
 
+    def get_analysis_settings(self, win):
+        """
+        Get user input for analysis settings before running the analysis.
         
+        Args:
+            - win (Surface): The pygame window to draw on.
+            
+        Returns:
+            - tuple: A tuple containing the analysis time and export results settings
+        """
+        running = True
+        while running:
+            win.fill((0, 0, 0))
+            analysis_text = self.big_font.render("Analysis Settings", True, (255, 255, 255))
+            analysis_time_text = self.font.render(f"Analysis Time: {self.analysis_time} seconds", True, (255, 255, 255))
+            analysis_time_instructions = self.font.render("Use arrow keys to adjust analysis time.", True, (150, 150, 150)) 
+            analysis_time_instructions_2 = self.small_font.render(f"**Time per phase (total runtime: {self.analysis_time * 2})", True, (150, 150, 150))
+            export_text = self.font.render(f"Export Results: {self.export_results}", True, (255, 255, 255))
+            export_instructions = self.font.render("Press 'e' to toggle export results", True, (150, 150, 150))
+            export_instructions_2 = self.small_font.render("**Results will be saved to 'exports/analytics-<DATETIME>.json", True, (150, 150, 150))
+            reset_text = self.font.render("Press 'r' to reset settings", True, (255, 255, 255))
+            start_text = self.font.render("Press 's' or 'Enter' to start analysis", True, (255, 255, 255))
+            win.blit(analysis_text, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 10))
+            win.blit(analysis_time_text, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 11))
+            win.blit(analysis_time_instructions, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 11.5))
+            win.blit(analysis_time_instructions_2, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 12))
+            win.blit(export_text, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 13))
+            win.blit(export_instructions, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 13.5))
+            win.blit(export_instructions_2, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 14))
+            win.blit(reset_text, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 15))
+            win.blit(start_text, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 16))
+            pg.display.flip()
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
+                    return None
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_UP:
+                        self.analysis_time += 60
+                    if event.key == pg.K_DOWN:
+                        self.analysis_time -= 60
+                    if event.key == pg.K_LEFT:
+                        self.analysis_time -= 5
+                    if event.key == pg.K_RIGHT:
+                        self.analysis_time += 5
+                    if event.key == pg.K_e:
+                        self.export_results = not self.export_results
+                    if event.key == pg.K_r:
+                        self.analysis_time = 300
+                        self.export_results = True
+                    if event.key == pg.K_s or event.key == pg.K_RETURN:
+                        running = False
+                        return
+                if self.analysis_time < 30:
+                    self.analysis_time = 30
+                if self.analysis_time > 43200:
+                    self.analysis_time = 43200
+        return
+    

@@ -3,10 +3,10 @@ import random
 import sys
 
 from analytics import Analytics
-from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS, ANALYSIS_PHASE_DURATION
+from config import WIDTH, HEIGHT, GRID_SIZE, FREQUENCY_OF_EVENTS
 from city import CityGrid
 from helpers import draw_split_tile, collision_counter
-from entities.scoreboard import Scoreboard, Logo, ERTSLogo, AnalysisDisplay
+from entities.scoreboard import Scoreboard, Logo, ERTSLogo, AnalysisDisplay, AnalysisSettings
 from entities.traffic_light import TrafficLight, IntersectionManager
 from entities.vehicle import Vehicle, EmergencyVehicle, generate_vehicle, generate_emergency_vehicle
 
@@ -96,6 +96,8 @@ class Simulation:
         self.scoreboard = Scoreboard()
         self.logo = Logo()
         self.erts_logo = ERTSLogo()
+        self.analysis_settings = AnalysisSettings()
+        self.analysis_phase_duration = 10
         self.analysis_timer = 0
         self.analysis_mode = False
         self.analysis_results_ready = False
@@ -220,7 +222,7 @@ class Simulation:
         
         # Draw the scoreboard or analysis results
         if self.analysis_results_ready:
-            self.analytics.finalize_analysis()
+            self.analytics.finalize_analysis(self.analysis_settings.export_results) # Pass bool from analysis_settings
             self.scoreboard.display_analysis_results(self.win, self.analytics)
         else:
             self.scoreboard.draw(self.win)
@@ -310,10 +312,14 @@ class Simulation:
         Start the analysis mode, resetting the simulation and enabling analysis.
         """
         self.reset_simulation()
-        self.analysis_time_buffer = pg.time.get_ticks()
+        self.analysis_settings.get_analysis_settings(self.win)
+        phase_duration = self.analysis_settings.analysis_time
+        self.analytics.phase_duration = phase_duration
+        self.analysis_phase_duration = phase_duration
+        self.analysis_time_buffer = pg.time.get_ticks()    # To account for time spent in other modes
         self.analysis_mode = True
         self.scoreboard.analysis_mode_active = True
-        self.analysis_timer = ANALYSIS_PHASE_DURATION - (pg.time.get_ticks() - self.analysis_time_buffer) // 1000
+        self.analysis_timer = self.analysis_phase_duration - (pg.time.get_ticks() - self.analysis_time_buffer) // 1000
         self.analysis_display.update(self.win, self.analysis_timer)
 
     def update_analysis(self):
@@ -323,9 +329,9 @@ class Simulation:
         self.analysis_display.update(self.win, self.analysis_timer)
 
         if self.analytics.phase_two_active:
-            self.analysis_timer = ANALYSIS_PHASE_DURATION * 2 - (pg.time.get_ticks() - self.analysis_time_buffer) // 1000
+            self.analysis_timer = self.analysis_phase_duration * 2 - (pg.time.get_ticks() - self.analysis_time_buffer) // 1000
         else:
-            self.analysis_timer = ANALYSIS_PHASE_DURATION - (pg.time.get_ticks() - self.analysis_time_buffer) // 1000
+            self.analysis_timer = self.analysis_phase_duration - (pg.time.get_ticks() - self.analysis_time_buffer) // 1000
 
         if self.analysis_timer <= 0 and not self.analytics.phase_two_active:
             self.record_analysis_result()
