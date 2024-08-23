@@ -286,7 +286,7 @@ class AnalysisSettings:
             export_text = self.font.render(f"Export Results: {self.export_results}", True, (255, 255, 255))
             export_instructions = self.font.render("Press 'e' to toggle export results", True, (150, 150, 150))
             export_instructions_2 = self.small_font.render("**Results will be saved to 'exports/analytics-<DATETIME>.json", True, (150, 150, 150))
-            reset_text = self.font.render("Press 'r' to reset settings", True, (255, 255, 255))
+            reset_text = self.font.render("Press 'a' to reset settings", True, (255, 255, 255))
             start_text = self.font.render("Press 's' or 'Enter' to start analysis", True, (255, 255, 255))
             win.blit(analysis_text, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 10))
             win.blit(analysis_time_text, (WIDTH // 2 - 4 * TILE_SIZE, TILE_SIZE * 11))
@@ -314,7 +314,7 @@ class AnalysisSettings:
                         self.analysis_time += 5
                     if event.key == pg.K_e:
                         self.export_results = not self.export_results
-                    if event.key == pg.K_r:
+                    if event.key == pg.K_a:
                         self.analysis_time = 300
                         self.export_results = True
                     if event.key == pg.K_s or event.key == pg.K_RETURN:
