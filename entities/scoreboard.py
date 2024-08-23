@@ -247,6 +247,16 @@ class AnalysisDisplay:
 class AnalysisSettings:
     """
     Class to get user input for analysis settings before running the analysis.
+
+    Attributes:
+        - small_font (Font): Font object for small text
+        - font (Font): Font object for regular text
+        - big_font (Font): Font object for large text
+        - analysis_time (int): The time to run the analysis for
+        - export_results (bool): Whether or not to export the results to a file
+
+    Methods:
+        - get_analysis_settings: Get user input for analysis settings before running the analysis
     """
 
     def __init__(self):

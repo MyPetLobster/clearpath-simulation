@@ -41,10 +41,14 @@ class Simulation:
         - scoreboard (Scoreboard): The scoreboard object.
         - logo (Logo): The ClearPath logo object.
         - erts_logo (ERTSLogo): The ERTS logo object.
+        - analysis_settings (AnalysisSettings): The analysis settings object.
+        - analysis_phase_duration (int): The duration of the analysis phase.
         - analysis_timer (int): Timer to track the analysis phase.
         - analysis_mode (bool): Flag to indicate if the simulation is in analysis mode.
         - analysis_results_ready (bool): Flag to indicate if the analysis results are ready to be displayed.
         - analytics (Analytics): The analytics object -- tracks collision rates, etc
+        - analysis_display (AnalysisDisplay): The analysis display object.
+        - analysis_time_buffer (int): Buffer to account for time spent in other modes.
         - veh_ct (int): Total number of vehicles added to the simulation. (used for analytics)
         - emveh_ct (int): Total number of emergency vehicles added to the simulation. (used for analytics)
         - paused (bool): Flag to indicate if the simulation is paused.
@@ -97,7 +101,7 @@ class Simulation:
         self.logo = Logo()
         self.erts_logo = ERTSLogo()
         self.analysis_settings = AnalysisSettings()
-        self.analysis_phase_duration = 10
+        self.analysis_phase_duration = 300
         self.analysis_timer = 0
         self.analysis_mode = False
         self.analysis_results_ready = False
@@ -324,7 +328,7 @@ class Simulation:
 
     def update_analysis(self):
         """
-        Update the analysis phase by tracking collisions in both normal and ClearPath modes.
+        Records results at the end of each phase and updates the analysis display.
         """
         self.analysis_display.update(self.win, self.analysis_timer)
 
@@ -348,7 +352,6 @@ class Simulation:
         Record the current collision count during the analysis phase.
         """
         self.analytics.update(self.collision_count, self.veh_ct, self.emveh_ct, self.analysis_mode)
-        print(self.analytics.__repr__())
         self.collision_count = 0
         self.veh_ct = 0
         self.emveh_ct = 0

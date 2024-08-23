@@ -17,6 +17,7 @@ class Analytics:
         - no_erts_emergency_count (int): The total number of emergency vehicles generated with ERTS inactive.
         - no_erts_collision_rate (float): The collision rate with ERTS inactive.
         - no_erts_weighted_collision_rate (float): The weighted collision rate with ERTS inactive.
+        - phase_duration (int): The duration of each phase of the simulation.
         - phase_two_active (bool): Whether or not phase two of the simulation is active.
 
     Methods:
@@ -37,7 +38,7 @@ class Analytics:
         self.no_erts_collision_rate = 0
         self.no_erts_avg_weighted_collision_rate = 0
         self.no_erts_extrapolated_collisions = 0
-        self.phase_duration = 0
+        self.phase_duration = 300
         self.phase_two_active = False
 
     def __repr__(self):
