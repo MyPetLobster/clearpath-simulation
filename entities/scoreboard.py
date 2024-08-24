@@ -13,6 +13,7 @@ class Scoreboard:
         - collision_count (int): The total number of collisions detected
         - clearpath_enabled (bool): Whether or not ClearPath is enabled
         - analysis_mode_active (bool): Whether or not the analysis mode is active
+        - analysis_start_time (int): The time at which the analysis started
         
     Methods:
         - update_collision_count: Update the collision count with the latest data
