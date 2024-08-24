@@ -6,6 +6,7 @@
 #### Submitted on 8/24/2024
 
 #### **Youtube Demo:** [ClearPath - Basic Intersection Simulation](https://youtu.be/-gR9btnFwes)
+#### **Replit Link:** [ClearPath - Basic Intersection Simulation](https://replit.com/@CorySuzuki2/clearpath-simulation)
 
 <img src="https://i.imgur.com/W6qoe6J.jpeg" width="300px">
 
@@ -247,6 +248,3 @@ This simulation provides a basic demonstration of ClearPath's Emergency Response
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 </br>
-
-
-# Links 
