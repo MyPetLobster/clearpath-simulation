@@ -3,7 +3,9 @@
 # ClearPath - Basic Intersection Simulation
 ### **By Cory Suzuki**
 #### Sophia Learning: Introduction to Python Programming - Touchstone 4
-#### Submitted on 8/23/2024
+#### Submitted on 8/24/2024
+
+<img src="https://i.imgur.com/W6qoe6J.jpeg" width="300px">
 
 </br>
 
@@ -36,6 +38,9 @@ This project is a simple simulation of ClearPath's Emergency Response Traffic Sy
                 <li><a href="#extrapolated-collision-count">Extrapolated Collision Count</a></li>
             </ul>
         </ul>
+    </li>
+    <li>
+        <a href="#screenshots">Screenshots</a>
     </li>
     <li>
         <a href="#conclusion">Conclusion</a>
@@ -213,6 +218,27 @@ The formula for calculating the extrapolated collision count is as follows:
 ```
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 </br>
+
+# Screenshots
+<p>Basic Simulation Mode</p>
+<img src="https://i.imgur.com/W6qoe6J.jpeg" width="500px">
+<hr>
+<p>Analysis Settings</p>
+<img src="https://i.imgur.com/id1hvSi.jpeg" width="500px">
+<hr>
+<p>Analysis Mode - ERTS Inactive</p>
+<img src="https://i.imgur.com/IfWG3mt.jpeg" width="500px">
+<hr>
+<p>Analysis Mode - ERTS Active</p>
+<img src="https://i.imgur.com/5Sdplue.jpeg" width="500px">
+<hr>
+<p>Analysis Results - Pygame Window</p>
+<img src="https://i.imgur.com/HJywVgq.jpeg" width="500px">
+<hr>
+<p>Analysis Results - JSON File</p>
+<img src="https://i.imgur.com/BrHlI07.png" width="500px">
+
+
 
 # Conclusion
 This simulation provides a basic demonstration of ClearPath's Emergency Response Traffic System (ERTS) at a single intersection. By toggling between ERTS Active and ERTS Inactive modes, users can observe the impact of the system on collision rates and traffic flow. The analysis mode offers a detailed comparison of the two modes, including collision frequencies, weighted rates, and extrapolated collision counts. These results provide valuable insights into the potential benefits of implementing ERTS in real-world scenarios, highlighting the system's ability to enhance public safety and reduce intersection accidents.
