@@ -5,6 +5,8 @@
 #### Sophia Learning: Introduction to Python Programming - Touchstone 4
 #### Submitted on 8/24/2024
 
+#### **Youtube Demo:** [ClearPath - Basic Intersection Simulation](https://youtu.be/-gR9btnFwes)
+
 <img src="https://i.imgur.com/W6qoe6J.jpeg" width="300px">
 
 </br>
