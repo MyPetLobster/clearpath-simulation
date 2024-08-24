@@ -55,7 +55,7 @@ I watch too many police pursuit videos and I'm always gritting my teeth every ti
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### What Issues Does ClearPath Aim to Solve?
- - **Emergency vehicles getting stuck in traffic** (see the green areas in figure 1 below). Notice that at a four-way stop, by nature there is a mostly open lane for emergency vehicles to use in every direction.
+ - **Emergency vehicles getting stuck in traffic** At a four-way stop, by nature there is a mostly open lane for emergency vehicles to use in every direction, making approaching, entering, and exiting the intersection much easier. This is especially important when the emergency vehicle is responding to a critical event where every second counts.
 
  -  **Accidents that occur at intersections during police pursuits/emergency responses** By automatically converting a standard red/yellow/green intersection into a blinking 4-way red, we can reduce the risk of accidents at intersections during police pursuits and emergency responses. The first clear benefit of this approach is that it requires no new physical infrastructure. It also doesn't require any kind of mass education campaign, as anyone with a drivers license should already know what to do at a blinking red light. The stop light also forces drivers to look both ways before entering the intersection, something most never think to do when a light is green. 
  
