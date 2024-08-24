@@ -29,12 +29,17 @@ class Scoreboard:
         self.collision_count = 0
         self.clearpath_enabled = False
         self.analysis_mode_active = False
+        self.analysis_start_time = 0
 
     def update_collision_count(self, new_count):
         self.collision_count = new_count
 
     def get_time_elapsed(self):
-        elapsed_time = pg.time.get_ticks() - self.start_time
+        if self.analysis_mode_active:
+            elapsed_time = pg.time.get_ticks() - self.analysis_start_time
+        else:
+            elapsed_time = pg.time.get_ticks() - self.start_time
+
         return elapsed_time // 1000  # Convert to seconds
 
     def draw(self, win):

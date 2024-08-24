@@ -325,6 +325,7 @@ class Simulation:
         self.analysis_time_buffer = pg.time.get_ticks()    # To account for time spent in other modes
         self.analysis_mode = True
         self.scoreboard.analysis_mode_active = True
+        self.scoreboard.analysis_start_time = pg.time.get_ticks()
         self.analysis_timer = self.analysis_phase_duration - (pg.time.get_ticks() - self.analysis_time_buffer) // 1000
         self.analysis_display.update(self.win, self.analysis_timer)
 
